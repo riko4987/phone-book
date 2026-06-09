@@ -2,25 +2,31 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>公司通訊錄</title>
+    <title>自動讀取測試</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
 <body>
-    <div id="result">資料載入中...</div>
+    <div id="status" style="color: red; font-weight: bold;">正在連線...</div>
+    <div id="content"></div>
 
     <script>
-        // 【請把下面網址換成您剛剛複製的 CSV 發布網址】
-        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
+        // 【請在此處貼上您的 CSV 發布網址】
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
-        Papa.parse(csvUrl, {
+        Papa.parse(CSV_URL, {
             download: true,
             header: true,
+            skipEmptyLines: true,
             complete: function(results) {
-                // 這裡簡單顯示結果
-                document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(results.data, null, 2) + '</pre>';
+                if (results.errors.length > 0) {
+                    document.getElementById('status').innerText = '解析錯誤: ' + JSON.stringify(results.errors);
+                } else {
+                    document.getElementById('status').innerText = '讀取成功！';
+                    document.getElementById('content').innerText = JSON.stringify(results.data);
+                }
             },
             error: function(err) {
-                document.getElementById('result').innerText = '讀取失敗: ' + err;
+                document.getElementById('status').innerText = '連線失敗: ' + err.message;
             }
         });
     </script>
