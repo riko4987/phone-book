@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>企業全體組織通訊錄 - 完整資料視覺化版</title>
+    <style>
+        :root { 
+            --yj: #e91e63; --yj-bg: #fff0f3; 
+            --lk: #2e7d32; --lk-bg: #f1f8f1; 
+            --fac: #fbc02d; --fac-bg: #fff9e6; 
+        }
+        
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
+        .main-title { text-align: center; color: #333; font-weight: bold; margin-bottom: 5px; }
+        .update-info { text-align: center; color: #888; font-size: 0.85em; margin-bottom: 25px; }
+        .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
+        
+        .company-card { background: white; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; margin-bottom: 20px; overflow: visible; }
+        .comp-header { padding: 15px; color: white; text-align: center; font-weight: bold; font-size: 1.25em; border-radius: 12px 12px 0 0; }
+        .bg-yj { background-color: var(--yj); }
+        .bg-lk { background-color: var(--lk); }
+        .bg-fac { background-color: var(--fac); color: #333; }
+
+        .dept-group { border-bottom: 1px solid #eee; transition: background-color 0.3s ease; }
+        
+        .company-card.yj-card .dept-group:hover { background-color: var(--yj-bg); }
+        .company-card.lk-card .dept-group:hover { background-color: var(--lk-bg); }
+        .company-card.fac-card .dept-group:hover { background-color: var(--fac-bg); }
+
+        .dept-title { padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; border-left: 4px solid transparent; }
+        .company-card.yj-card .dept-title { border-left-color: var(--yj); }
+        .company-card.lk-card .dept-title { border-left-color: var(--lk); }
+        .company-card.fac-card .dept-title { border-left-color: var(--fac); }
+
+        .staff-list { display: none; padding: 0; }
+        .expanded .staff-list { display: block; }
+
+        .staff-item { display: flex; justify-content: space-between; padding: 10px 25px; border-bottom: 1px dotted #eee; position: relative; cursor: pointer; min-height: 24px;}
+        .staff-item:hover { background-color: rgba(0,0,0,0.05); color: #d32f2f; font-weight: bold; }
+        .ext-num { font-family: "Consolas", monospace; color: #555; }
+
+        /* 預設照片彈窗：向右彈出 */
+        .photo-pop {
+            display: none; position: absolute; left: 105%; top: 50%; transform: translateY(-50%);
+            width: 320px; background: white; border: 2px solid #ccc; box-shadow: 10px 10px 30px rgba(0,0,0,0.3); 
+            z-index: 9999; padding: 12px; border-radius: 12px; pointer-events: none;
+        }
+
+        /* 針對最右側 fac-card，將彈窗改為向左彈出 */
+        .fac-card .photo-pop {
+            left: auto;
+            right: 105%;
+            box-shadow: -10px 10px 30px rgba(0,0,0,0.3); /* 陰影也改向左 */
+        }
+
+        .yj-card .photo-pop { border-color: var(--yj); }
+        .lk-card .photo-pop { border-color: var(--lk); }
+        .fac-card .photo-pop { border-color: var(--fac); }
+        .photo-pop img { width: 300px; height: 300px; object-fit: cover; border-radius: 8px; }
+        .staff-item:hover .photo-pop { display: block; }
+    </style>
+</head>
+<body>
+
+<h1 class="main-title">企業全體組織通訊錄</h1>
+<p class="update-info">資料同步日期：2026-06-09 (依據最新試算表資料生成)</p>
+
+<div class="container">
+
+    <!-- 永鉅電機 (簡碼 88) -->
+    <div class="company-card yj-card">
+        <div class="comp-header bg-yj">永鉅電機 (簡碼 88)</div>
+        
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">會議室 (A8/A9) <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>A8會議室</span><span class="ext-num">8370</span></div>
+                <div class="staff-item"><span>A9大會議室</span><span class="ext-num">8371</span></div>
+                <div class="staff-item"><span>A9小會議室</span><span class="ext-num">8373</span></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">倉庫 / 櫃台 (A1) <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>李信賢 (倉庫)</span><span class="ext-num">8241</span><div class="photo-pop"><img src="images/李信賢_倉庫.png"></div></div>
+                <div class="staff-item"><span>吳慶鋐 (倉庫)</span><span class="ext-num">8236</span><div class="photo-pop"><img src="images/吳慶鋐_倉庫.png"></div></div>
+                <div class="staff-item"><span>顏瑞良 (倉庫)</span><span class="ext-num">8237</span><div class="photo-pop"><img src="images/顏瑞良_倉庫.png"></div></div>
+                <div class="staff-item"><span>陳則佑 (倉庫)</span><span class="ext-num">8237</span><div class="photo-pop"><img src="images/陳則佑_倉庫.png"></div></div>
+                <div class="staff-item"><span>陳正崴 (倉庫)</span><span class="ext-num">8241</span><div class="photo-pop"><img src="images/陳正崴_倉庫.png"></div></div>
+                <div class="staff-item"><span>徐宜君 (櫃台)</span><span class="ext-num">8266</span><div class="photo-pop"><img src="images/徐宜君_櫃台.png"></div></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">中區 / 南區業務 <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>黃喬微 (中區)</span><span class="ext-num">898</span><div class="photo-pop"><img src="images/黃喬微_中區業務.png"></div></div>
+                <div class="staff-item"><span>許秀惠 (中區)</span><span class="ext-num">897</span><div class="photo-pop"><img src="images/許秀惠_中區業務.png"></div></div>
+                <div class="staff-item"><span>吳婓靜 (中區)</span><span class="ext-num">855</span><div class="photo-pop"><img src="images/吳婓靜_中區業務.png"></div></div>
+                <div class="staff-item"><span>林蕙君 (南區)</span><span class="ext-num">55</span><div class="photo-pop"><img src="images/林蕙君_南區業務.png"></div></div>
+                <div class="staff-item"><span>楊雅淳 (南區)</span><span class="ext-num">55</span><div class="photo-pop"><img src="images/楊雅淳_南區業務.png"></div></div>
+                <div class="staff-item"><span>林佩鈺 (南區)</span><span class="ext-num">55</span><div class="photo-pop"><img src="images/林佩鈺_南區業務.png"></div></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">國貿部 (A7) <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>三哥</span><span class="ext-num">8208</span><div class="photo-pop"><img src="images/三哥_國貿部.png"></div></div>
+                <div class="staff-item"><span>黃俊榮</span><span class="ext-num">8256</span><div class="photo-pop"><img src="images/黃俊榮_國貿部.png"></div></div>
+                <div class="staff-item"><span>李苡寧</span><span class="ext-num">8312</span><div class="photo-pop"><img src="images/李苡寧_國貿部.png"></div></div>
+                <div class="staff-item"><span>陳詩惠</span><span class="ext-num">8280</span><div class="photo-pop"><img src="images/陳詩惠_國貿部.png"></div></div>
+                <div class="staff-item"><span>呂筱琳</span><span class="ext-num">8275</span><div class="photo-pop"><img src="images/呂筱琳_國貿部.png"></div></div>
+                <div class="staff-item"><span>劉育麟</span><span class="ext-num">8338</span><div class="photo-pop"><img src="images/劉育麟_國貿部.png"></div></div>
+                <div class="staff-item"><span>張家芸</span><span class="ext-num">8215</span><div class="photo-pop"><img src="images/張家芸_國貿部.png"></div></div>
+                <div class="staff-item"><span></span><span class="ext-num">8213</span></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">Power技術 / 業務 (A7) <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>陳沈宏 (技術)</span><span class="ext-num">8272</span><div class="photo-pop"><img src="images/陳沈宏_Power技術.png"></div></div>
+                <div class="staff-item"><span>徐俊國 (技術)</span><span class="ext-num">8299</span><div class="photo-pop"><img src="images/徐俊國_Power技術.png"></div></div>
+                <div class="staff-item"><span>王治喬 (技術)</span><span class="ext-num">77</span><div class="photo-pop"><img src="images/王治喬_Power技術.png"></div></div>
+                <div class="staff-item"><span></span><span class="ext-num">77</span></div>
+                <div class="staff-item"><span>張令璜 (業務)</span><span class="ext-num">8257</span><div class="photo-pop"><img src="images/張令璜_Power業務.png"></div></div>
+                <div class="staff-item"><span>江金育 (業務)</span><span class="ext-num">8288</span><div class="photo-pop"><img src="images/江金育_Power業務.png"></div></div>
+                <div class="staff-item"><span>林春玉 (業務)</span><span class="ext-num">8251</span><div class="photo-pop"><img src="images/林春玉_Power業務.png"></div></div>
+                <div class="staff-item"><span>康芳源 (業務)</span><span class="ext-num">8255</span><div class="photo-pop"><img src="images/康芳源_Power業務.png"></div></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">RiKO業務 / 技術 / 業助 (A7) <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>徐暐晴 (業務)</span><span class="ext-num">8278</span><div class="photo-pop"><img src="images/徐暐晴_RiKO業務.png"></div></div>
+                <div class="staff-item"><span>卓雪玉 (業務)</span><span class="ext-num">8271</span><div class="photo-pop"><img src="images/卓雪玉_RiKO業務.png"></div></div>
+                <div class="staff-item"><span>武昭麟 (業務)</span><span class="ext-num">8214</span><div class="photo-pop"><img src="images/武昭麟_RiKO業務.png"></div></div>
+                <div class="staff-item"><span>林恒德 (業務)</span><span class="ext-num">8268</span><div class="photo-pop"><img src="images/林恒德_RiKO業務.png"></div></div>
+                <div class="staff-item"><span>吳國達 (技術)</span><span class="ext-num">8213</span><div class="photo-pop"><img src="images/吳國達_RiKO技術.png"></div></div>
+                <div class="staff-item"><span>黃日揚 (業助)</span><span class="ext-num">8297</span><div class="photo-pop"><img src="images/黃日揚_業助.png"></div></div>
+                <div class="staff-item"><span>林千惠 (業助)</span><span class="ext-num">8308</span><div class="photo-pop"><img src="images/林千惠_業助.png"></div></div>
+                <div class="staff-item"><span>邱汝智 (業助)</span><span class="ext-num">8277</span><div class="photo-pop"><img src="images/邱汝智_業助.png"></div></div>
+                <div class="staff-item"><span>王瑞琪 (業助)</span><span class="ext-num">8273</span><div class="photo-pop"><img src="images/王瑞琪_業助.png"></div></div>
+                <div class="staff-item"><span></span><span class="ext-num">8372</span></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">財會 / 人事 (A8) <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>黃美媖</span><span class="ext-num">8250</span><div class="photo-pop"><img src="images/黃美媖_財會人事.png"></div></div>
+                <div class="staff-item"><span>李倩慧</span><span class="ext-num">8331</span><div class="photo-pop"><img src="images/李倩慧_財會人事.png"></div></div>
+                <div class="staff-item"><span></span><span class="ext-num">8206</span></div>
+                <div class="staff-item"><span>林美君</span><span class="ext-num">8332</span><div class="photo-pop"><img src="images/林美君_財會人事.png"></div></div>
+                <div class="staff-item"><span>李美蓉</span><span class="ext-num">8336</span><div class="photo-pop"><img src="images/李美蓉_財會人事.png"></div></div>
+                <div class="staff-item"><span>賴正發</span><span class="ext-num">8337</span><div class="photo-pop"><img src="images/賴正發_財會人事.png"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 力科光電 (簡碼 66) -->
+    <div class="company-card lk-card">
+        <div class="comp-header bg-lk">力科光電 (簡碼 66)</div>
+        
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">總經理室 (A1) <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>李總</span><span class="ext-num">6212</span><div class="photo-pop"><img src="images/李總_總經理室.png"></div></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">管理 / 總務 / 威力科 / 資管 <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>黃秋英 (管理 A8)</span><span class="ext-num">6307</span><div class="photo-pop"><img src="images/黃秋英_管理部.png"></div></div>
+                <div class="staff-item"><span>羅新光 (總務 A7)</span><span class="ext-num">6214</span><div class="photo-pop"><img src="images/羅新光_總務.png"></div></div>
+                <div class="staff-item"><span>蔣明叡 (文管 A8)</span><span class="ext-num">6447</span><div class="photo-pop"><img src="images/蔣明叡_文管.png"></div></div>
+                <div class="staff-item"><span>吳胤輝 (資管 A8)</span><span class="ext-num">6354</span><div class="photo-pop"><img src="images/吳胤輝_資管.png"></div></div>
+                <div class="staff-item"><span>陳宏澤 (威力科 A8)</span><span class="ext-num">6339</span><div class="photo-pop"><img src="images/陳宏澤_威力科.png"></div></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">美編 / 門市 (A8/77) <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>黃書慧 (美編)</span><span class="ext-num">6306</span><div class="photo-pop"><img src="images/黃書慧_美編.png"></div></div>
+                <div class="staff-item"><span>程献中 (美編)</span><span class="ext-num">6334</span><div class="photo-pop"><img src="images/程献中_美編.png"></div></div>
+                <div class="staff-item"><span></span><span class="ext-num">6307</span></div>
+                <div class="staff-item"><span>王志豪 (美編)</span><span class="ext-num">6334</span><div class="photo-pop"><img src="images/王志豪_美編.png"></div></div>
+                <div class="staff-item"><span>黃怡勳 (門市)</span><span class="ext-num">77</span><div class="photo-pop"><img src="images/黃怡勳_門市.png"></div></div>
+                <div class="staff-item"><span>吳垂達 (門市)</span><span class="ext-num">77</span><div class="photo-pop"><img src="images/吳垂達_門市.png"></div></div>
+                <div class="staff-item"><span></span><span class="ext-num">77</span></div>
+                <div class="staff-item"><span>陳彩竹 (門市)</span><span class="ext-num">77</span><div class="photo-pop"><img src="images/陳彩竹_門市.png"></div></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">機構課 / 技轉課 / 實驗室 (A10) <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>李宗文 (機構)</span><span class="ext-num">6352</span><div class="photo-pop"><img src="images/李宗文_機構課.png"></div></div>
+                <div class="staff-item"><span>吳承輝 (機構)</span><span class="ext-num">6353</span><div class="photo-pop"><img src="images/吳承輝_機構課.png"></div></div>
+                <div class="staff-item"><span>許惠如 (機構)</span><span class="ext-num">6356</span><div class="photo-pop"><img src="images/許惠如_機構課.png"></div></div>
+                <div class="staff-item"><span>莊文萍 (機構)</span><span class="ext-num">6319</span><div class="photo-pop"><img src="images/莊文萍_機構課.png"></div></div>
+                <div class="staff-item"><span>楊汶崎 (機構)</span><span class="ext-num">6229</span><div class="photo-pop"><img src="images/楊汶崎_機構課.png"></div></div>
+                <div class="staff-item"><span>魏友展 (機構)</span><span class="ext-num">6229</span><div class="photo-pop"><img src="images/魏友展_機構課.png"></div></div>
+                <div class="staff-item"><span>黃書慧 (機構)</span><span class="ext-num"></span><div class="photo-pop"><img src="images/黃書慧_機構課.png"></div></div>
+                <div class="staff-item"><span>關芬 (技轉)</span><span class="ext-num">6272</span><div class="photo-pop"><img src="images/關芬_技轉課.png"></div></div>
+                <div class="staff-item"><span>侯佳妘 (技轉)</span><span class="ext-num">6272</span><div class="photo-pop"><img src="images/侯佳妘_技轉課.png"></div></div>
+                <div class="staff-item"><span>裴氏金鸞 (技轉)</span><span class="ext-num">6272</span><div class="photo-pop"><img src="images/裴氏金鸞_技轉課.png"></div></div>
+                <div class="staff-item"><span>鍾淑如 (技轉)</span><span class="ext-num">6364</span><div class="photo-pop"><img src="images/鍾淑如_技轉課.png"></div></div>
+                <div class="staff-item"><span>駱建璋 (實驗室)</span><span class="ext-num">6287/6364</span><div class="photo-pop"><img src="images/駱建璋_實驗室.png"></div></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">視覺 / 光電 / PM / DALI (A11) <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span></span><span class="ext-num">6313</span></div>
+                <div class="staff-item"><span>李育慶 (視覺)</span><span class="ext-num">6299</span><div class="photo-pop"><img src="images/李育慶_視覺小組.png"></div></div>
+                <div class="staff-item"><span>陳逢為 (視覺)</span><span class="ext-num">6299</span><div class="photo-pop"><img src="images/陳逢為_視覺小組.png"></div></div>
+                <div class="staff-item"><span>王昭豐 (視覺)</span><span class="ext-num">6281</span><div class="photo-pop"><img src="images/王昭豐_視覺小組.png"></div></div>
+                <div class="staff-item"><span>唐家榮 (視覺)</span><span class="ext-num">6299</span><div class="photo-pop"><img src="images/唐家榮_視覺小組.png"></div></div>
+                <div class="staff-item"><span>林國謙 (光電)</span><span class="ext-num">6322</span><div class="photo-pop"><img src="images/林國謙_光電小組.png"></div></div>
+                <div class="staff-item"><span>賴和生 (光電)</span><span class="ext-num">6351</span><div class="photo-pop"><img src="images/賴和生_光電小組.png"></div></div>
+                <div class="staff-item"><span>江衍璋 (光電)</span><span class="ext-num">6252</span><div class="photo-pop"><img src="images/江衍璋_光電小組.png"></div></div>
+                <div class="staff-item"><span>黃嘉鵬 (DALI)</span><span class="ext-num">6277</span><div class="photo-pop"><img src="images/黃嘉鵬_DALI小組.png"></div></div>
+                <div class="staff-item"><span>楊嘉銘 (DALI)</span><span class="ext-num">6277</span><div class="photo-pop"><img src="images/楊嘉銘_DALI小組.png"></div></div>
+                <div class="staff-item"><span></span><span class="ext-num">6277</span></div>
+                <div class="staff-item"><span>蔡英杰 (PM)</span><span class="ext-num">6323</span><div class="photo-pop"><img src="images/蔡英杰_PM.png"></div></div>
+                <div class="staff-item"><span>花晨榮 (PM)</span><span class="ext-num">6365</span><div class="photo-pop"><img src="images/花晨榮_PM.png"></div></div>
+                <div class="staff-item"><span>龔元彬 (PM)</span><span class="ext-num">6365</span><div class="photo-pop"><img src="images/龔元彬_PM.png"></div></div>
+                <div class="staff-item"><span>溫耀民 (PM)</span><span class="ext-num">6366</span><div class="photo-pop"><img src="images/溫耀民_PM.png"></div></div>
+                <div class="staff-item"><span>歐宗輝 (PM)</span><span class="ext-num">6365</span><div class="photo-pop"><img src="images/歐宗輝_PM.png"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 力科工廠 (簡碼 33) -->
+    <div class="company-card fac-card">
+        <div class="comp-header bg-fac">力科工廠 (簡碼 33)</div>
+        
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">1F 包射、品保 <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>包射區</span><span class="ext-num">234</span></div>
+                <div class="staff-item"><span>陳德豪</span><span class="ext-num">233</span><div class="photo-pop"><img src="images/陳德豪_包射區.png"></div></div>
+                <div class="staff-item"><span>品保檢驗</span><span class="ext-num">233</span></div>
+                <div class="staff-item"><span>王雅芳</span><span class="ext-num">312</span><div class="photo-pop"><img src="images/王雅芳_包射區.png"></div></div>
+                <div class="staff-item"><span>簡仲杰</span><span class="ext-num">234</span><div class="photo-pop"><img src="images/簡仲杰_包射區.png"></div></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">2F 力科倉 <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>陳雅菁</span><span class="ext-num">282</span><div class="photo-pop"><img src="images/陳雅菁_力科倉.png"></div></div>
+                <div class="staff-item"><span>翁新誌</span><span class="ext-num">268</span><div class="photo-pop"><img src="images/翁新誌_力科倉.png"></div></div>
+                <div class="staff-item"><span>林仁智</span><span class="ext-num">260</span><div class="photo-pop"><img src="images/林仁智_力科倉.png"></div></div>
+                <div class="staff-item"><span>沈育志</span><span class="ext-num">264</span><div class="photo-pop"><img src="images/沈育志_力科倉.png"></div></div>
+                <div class="staff-item"><span></span><span class="ext-num">283</span></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">3F 光纖產線 <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>黃顗珍</span><span class="ext-num">262</span><div class="photo-pop"><img src="images/黃顗珍_光纖產線.png"></div></div>
+                <div class="staff-item"><span>薛宏麟</span><span class="ext-num">262</span><div class="photo-pop"><img src="images/薛宏麟_光纖產線.png"></div></div>
+                <div class="staff-item"><span>陳新仁</span><span class="ext-num">225</span><div class="photo-pop"><img src="images/陳新仁_光纖產線.png"></div></div>
+                <div class="staff-item"><span>紀仲芬</span><span class="ext-num">225</span><div class="photo-pop"><img src="images/紀仲芬_光纖產線.png"></div></div>
+                <div class="staff-item"><span>品保檢驗</span><span class="ext-num">270</span></div>
+                <div class="staff-item"><span>劉博淵</span><span class="ext-num">228</span><div class="photo-pop"><img src="images/劉博淵_光纖產線.png"></div></div>
+                <div class="staff-item"><span>江文瑄</span><span class="ext-num">209</span><div class="photo-pop"><img src="images/江文瑄_光纖產線.png"></div></div>
+                <div class="staff-item"><span>研磨區</span><span class="ext-num">279</span></div>
+                <div class="staff-item"><span>包裝區</span><span class="ext-num">289</span></div>
+                <div class="staff-item"><span>3樓會議室</span><span class="ext-num">355</span></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">4F 自動化產線 / 電子產線 <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>自動化產線</span><span class="ext-num">226</span></div>
+                <div class="staff-item"><span>黃麟雄 (自動化)</span><span class="ext-num">266</span><div class="photo-pop"><img src="images/黃麟雄_自動化產線.png"></div></div>
+                <div class="staff-item"><span>蔡孜和 (自動化)</span><span class="ext-num">266</span><div class="photo-pop"><img src="images/蔡孜和_自動化產線.png"></div></div>
+                <div class="staff-item"><span>蕭雅鈴 (自動化)</span><span class="ext-num">226</span><div class="photo-pop"><img src="images/蕭雅鈴_自動化產線.png"></div></div>
+                <div class="staff-item"><span>吳曉菁 (電子產線)</span><span class="ext-num">300</span><div class="photo-pop"><img src="images/吳曉菁_電子產線.png"></div></div>
+                <div class="staff-item"><span>陳錦秋 (電子產線)</span><span class="ext-num">364</span><div class="photo-pop"><img src="images/陳錦秋_電子產線.png"></div></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">5F 電子自動化課 <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>李俊霆</span><span class="ext-num">202</span><div class="photo-pop"><img src="images/李俊霆_電子自動化課.png"></div></div>
+                <div class="staff-item"><span>明貴中</span><span class="ext-num">274</span><div class="photo-pop"><img src="images/明貴中_電子自動化課.png"></div></div>
+                <div class="staff-item"><span>張競文</span><span class="ext-num">274</span><div class="photo-pop"><img src="images/張競文_電子自動化課.png"></div></div>
+                <div class="staff-item"><span>林威志</span><span class="ext-num">206</span><div class="photo-pop"><img src="images/林威志_電子自動化課.png"></div></div>
+                <div class="staff-item"><span>張東昇</span><span class="ext-num">263</span><div class="photo-pop"><img src="images/張東昇_電子自動化課.png"></div></div>
+                <div class="staff-item"><span>林有麒</span><span class="ext-num">254</span><div class="photo-pop"><img src="images/林有麒_電子自動化課.png"></div></div>
+                <div class="staff-item"><span></span><span class="ext-num">311</span></div>
+                <div class="staff-item"><span></span><span class="ext-num">308</span></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">6F 管理、資材課 / 品保課 <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>劉永安 (管理資材)</span><span class="ext-num">218</span><div class="photo-pop"><img src="images/劉永安_管理資材課.png"></div></div>
+                <div class="staff-item"><span>張淑靜 (管理資材)</span><span class="ext-num">292</span><div class="photo-pop"><img src="images/張淑靜_管理資材課.png"></div></div>
+                <div class="staff-item"><span>曾富楷 (管理資材)</span><span class="ext-num">302</span><div class="photo-pop"><img src="images/曾富楷_管理資材課.png"></div></div>
+                <div class="staff-item"><span>賴正發 (管理資材)</span><span class="ext-num">284</span><div class="photo-pop"><img src="images/賴正發_管理資材課.png"></div></div>
+                <div class="staff-item"><span>黃仕棋 (管理資材)</span><span class="ext-num">297</span><div class="photo-pop"><img src="images/黃仕棋_管理資材課.png"></div></div>
+                <div class="staff-item"><span>會議室 (大)</span><span class="ext-num">296</span></div>
+                <div class="staff-item"><span>會議室 (小)</span><span class="ext-num">295</span></div>
+                <div class="staff-item"><span>李魁波 (品保課)</span><span class="ext-num">250</span><div class="photo-pop"><img src="images/李魁波_品保課.png"></div></div>
+                <div class="staff-item"><span>鄧麗都 (品保課)</span><span class="ext-num">250</span><div class="photo-pop"><img src="images/鄧麗都_品保課.png"></div></div>
+                <div class="staff-item"><span>王福祥 (品保課)</span><span class="ext-num">232</span><div class="photo-pop"><img src="images/王福祥_品保課.png"></div></div>
+                <div class="staff-item"><span></span><span class="ext-num">232</span></div>
+                <div class="staff-item"><span>林春富 (品保課)</span><span class="ext-num">216</span><div class="photo-pop"><img src="images/林春富_品保課.png"></div></div>
+                <div class="staff-item"><span>阮柏儀 (品保課)</span><span class="ext-num">255</span><div class="photo-pop"><img src="images/阮柏儀_品保課.png"></div></div>
+                <div class="staff-item"><span>宋炎庭 (品保課)</span><span class="ext-num">255</span><div class="photo-pop"><img src="images/宋炎庭_品保課.png"></div></div>
+            </div>
+        </div>
+
+        <div class="dept-group">
+            <div class="dept-title" onclick="toggleDept(this)">7F 會議室、實驗室 <span>[+]</span></div>
+            <div class="staff-list">
+                <div class="staff-item"><span>會議室</span><span class="ext-num">366</span></div>
+                <div class="staff-item"><span>陳淑蘭</span><span class="ext-num">320</span><div class="photo-pop"><img src="images/陳淑蘭_會議室實驗室.png"></div></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function toggleDept(el) {
+        const group = el.parentElement;
+        group.classList.toggle('expanded');
+        el.querySelector('span').innerText = group.classList.contains('expanded') ? '[-]' : '[+]';
+    }
+</script>
+
+</body>
+</html>
