@@ -5,14 +5,13 @@
     <title>公司通訊錄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { font-family: sans-serif; background-color: #f4f4f9; padding: 20px; }
+        body { font-family: sans-serif; background-color: #f4f4f9; padding: 20px; margin: 0; }
         .container { max-width: 600px; margin: auto; }
-        .card { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; }
-        .dept-title { background: #333; color: white; padding: 10px 15px; font-weight: bold; }
-        .item { padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
-        .item:last-child { border-bottom: none; }
-        .name { font-weight: bold; }
-        .ext { color: #007bff; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); margin-bottom: 20px; overflow: hidden; }
+        .dept-header { background: #2c3e50; color: white; padding: 12px 15px; font-weight: bold; font-size: 1.1em; letter-spacing: 1px; }
+        .row { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #eee; align-items: center; }
+        .name { font-weight: bold; color: #333; }
+        .ext { color: #e67e22; font-weight: bold; font-size: 1.1em; }
     </style>
 </head>
 <body>
@@ -20,12 +19,12 @@
 <div class="container" id="app">資料載入中...</div>
 
 <script>
-    // 請確認您的 CSV 網址
+    // 這裡貼上您的 CSV 發布連結
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
     Papa.parse(CSV_URL, {
         download: true,
-        header: false, // 【關鍵】強制不讀取標題，改用索引讀取
+        header: false,
         skipEmptyLines: true,
         complete: function(results) {
             const data = results.data;
@@ -33,31 +32,28 @@
             app.innerHTML = ''; 
 
             const groups = {};
-
+            // 直接指定欄位：A欄[0]=部門, B欄[1]=姓名, C欄[2]=分機
             data.forEach((row, index) => {
-                // 如果第一列是標題，請把下面這行改成 if (index === 0) return;
-                // 如果沒有標題，請刪除下面這行
+                // 如果您的第一列是標題，請保留這行；如果沒有標題，請刪除這行
                 if (index === 0) return; 
 
-                // 【請依您的實際欄位順序調整索引】
-                // 假設：row[0] = 分機, row[1] = 部門, row[2] = 姓名
-                const ext = row[0] || '';
-                const dept = row[1] || '未分類';
-                const name = row[2] || '';
+                const dept = row[0] || '未分類';
+                const name = row[1] || '';
+                const ext = row[2] || '';
 
                 if (!groups[dept]) groups[dept] = [];
                 groups[dept].push({ name, ext });
             });
 
-            // 渲染畫面
+            // 渲染：完全依照您原本的卡片風格
             for (const dept in groups) {
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.innerHTML = `<div class="dept-title">${dept}</div>`;
+                card.innerHTML = `<div class="dept-header">${dept}</div>`;
                 
                 groups[dept].forEach(item => {
                     const row = document.createElement('div');
-                    row.className = 'item';
+                    row.className = 'row';
                     row.innerHTML = `<span class="name">${item.name}</span><span class="ext">${item.ext}</span>`;
                     card.appendChild(row);
                 });
