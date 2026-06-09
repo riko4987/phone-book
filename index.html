@@ -3,21 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <title>企業全體組織通訊錄</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        /* ⚠️ 此處保留您原始的 CSS 結構，確保排版完全一致 */
-        :root { --yj: #e91e63; --yj-bg: #fff0f3; --lk: #2e7d32; --lk-bg: #f1f8f1; --fac: #fbc02d; --fac-bg: #fff9e6; }
+        :root { 
+            --yj: #e91e63; --yj-bg: #fff0f3; 
+            --lk: #2e7d32; --lk-bg: #f1f8f1; 
+            --fac: #fbc02d; --fac-bg: #fff9e6; 
+        }
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
-        .main-title { text-align: center; color: #333; font-weight: bold; margin-bottom: 5px; }
+        .main-title { text-align: center; color: #333; font-weight: bold; margin-bottom: 20px; }
         .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
         .company-card { background: white; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; margin-bottom: 20px; }
         .comp-header { padding: 15px; color: white; text-align: center; font-weight: bold; font-size: 1.25em; border-radius: 12px 12px 0 0; }
-        .bg-yj { background-color: var(--yj); } .bg-lk { background-color: var(--lk); } .bg-fac { background-color: var(--fac); color: #333; }
+        .bg-yj { background-color: var(--yj); }
+        .bg-lk { background-color: var(--lk); }
+        .bg-fac { background-color: var(--fac); color: #333; }
         .dept-group { border-bottom: 1px solid #eee; }
         .dept-title { padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; border-left: 4px solid transparent; }
+        .yj-card .dept-title { border-left-color: var(--yj); }
+        .lk-card .dept-title { border-left-color: var(--lk); }
+        .fac-card .dept-title { border-left-color: var(--fac); }
         .staff-list { display: none; padding: 0; }
         .expanded .staff-list { display: block; }
-        .staff-item { display: flex; justify-content: space-between; padding: 10px 25px; border-bottom: 1px dotted #eee; position: relative; cursor: pointer; min-height: 24px; }
+        .staff-item { display: flex; justify-content: space-between; padding: 10px 25px; border-bottom: 1px dotted #eee; position: relative; cursor: pointer; }
         .staff-item:hover { background-color: rgba(0,0,0,0.05); color: #d32f2f; font-weight: bold; }
         .ext-num { font-family: "Consolas", monospace; color: #555; }
         .photo-pop { display: none; position: absolute; left: 105%; top: 50%; transform: translateY(-50%); width: 320px; background: white; border: 2px solid #ccc; box-shadow: 10px 10px 30px rgba(0,0,0,0.3); z-index: 9999; padding: 12px; border-radius: 12px; pointer-events: none; }
@@ -28,59 +35,34 @@
 <body>
 
     <h1 class="main-title">企業全體組織通訊錄</h1>
-    <div class="container" id="app"></div>
+    
+    <div class="container">
+        <div class="company-card yj-card">
+            <div class="comp-header bg-yj">永鉅電機</div>
+            <div class="dept-group">
+                <div class="dept-title" onclick="toggleDept(this)">品保課 <span>[+]</span></div>
+                <div class="staff-list">
+                    <div class="staff-item"><span>王福祥</span><span class="ext-num">232</span><div class="photo-pop"><img src="images/王福祥_品保課.png"></div></div>
+                    <div class="staff-item"><span>林春富</span><span class="ext-num">216</span><div class="photo-pop"><img src="images/林春富_品保課.png"></div></div>
+                    <div class="staff-item"><span>阮柏儀</span><span class="ext-num">255</span><div class="photo-pop"><img src="images/阮柏儀_品保課.png"></div></div>
+                    <div class="staff-item"><span>宋炎庭</span><span class="ext-num">255</span><div class="photo-pop"><img src="images/宋炎庭_品保課.png"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="company-card fac-card">
+            <div class="comp-header bg-fac">總務部</div>
+            <div class="dept-group">
+                <div class="dept-title" onclick="toggleDept(this)">7F 會議室、實驗室 <span>[+]</span></div>
+                <div class="staff-list">
+                    <div class="staff-item"><span>會議室</span><span class="ext-num">366</span></div>
+                    <div class="staff-item"><span>陳淑蘭</span><span class="ext-num">320</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // ⚠️ 請將此處替換為您 Google 試算表發布後的 CSV 網址
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
-
-        Papa.parse(CSV_URL, {
-            download: true, header: true, skipEmptyLines: true,
-            complete: function(results) {
-                const app = document.getElementById('app');
-                const tree = {};
-                
-                // 根據 CSV 欄位名稱自動分組 (假設欄位為：公司, 部門, 姓名, 分機, 圖片檔名)
-                results.data.forEach(row => {
-                    const c = row['公司'];
-                    const d = row['部門'];
-                    if (!tree[c]) tree[c] = {};
-                    if (!tree[c][d]) tree[c][d] = [];
-                    tree[c][d].push(row);
-                });
-
-                // 生成 HTML
-                for (const comp in tree) {
-                    const card = document.createElement('div');
-                    let css = 'yj-card'; let bg = 'bg-yj';
-                    if (comp.includes('力科')) { css = 'lk-card'; bg = 'bg-lk'; }
-                    else if (comp.includes('工廠') || comp.includes('總務')) { css = 'fac-card'; bg = 'bg-fac'; }
-                    
-                    card.className = `company-card ${css}`;
-                    card.innerHTML = `<div class="comp-header ${bg}">${comp}</div>`;
-                    
-                    for (const dept in tree[comp]) {
-                        const group = document.createElement('div');
-                        group.className = 'dept-group';
-                        group.innerHTML = `<div class="dept-title" onclick="toggleDept(this)">${dept} <span>[+]</span></div>
-                                           <div class="staff-list"></div>`;
-                        
-                        const list = group.querySelector('.staff-list');
-                        tree[comp][dept].forEach(p => {
-                            const item = document.createElement('div');
-                            item.className = 'staff-item';
-                            // 這裡維持您原本的圖片路徑格式 (images/名稱_部門.png)
-                            const photo = p['圖片檔名'] ? `<div class="photo-pop"><img src="images/${p['圖片檔名']}"></div>` : '';
-                            item.innerHTML = `<span>${p['姓名']} (${p['部門']})</span><span class="ext-num">${p['分機']}</span>${photo}`;
-                            list.appendChild(item);
-                        });
-                        card.appendChild(group);
-                    }
-                    app.appendChild(card);
-                }
-            }
-        });
-
         function toggleDept(el) {
             const group = el.parentElement;
             group.classList.toggle('expanded');
