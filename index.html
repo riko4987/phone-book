@@ -59,7 +59,7 @@
 <body>
 
 <h1 class="main-title">企業全體組織通訊錄</h1>
-<div class="update-info" id="sync-time">正在與雲端試算表進行高容錯安全連動...</div>
+<div class="update-info" id="sync-time">正在連動雲端試算表...</div>
 
 <div class="container" id="address-book-container">
     <div class="loading">正在即時同步雲端試算表資料，請稍候...</div>
@@ -85,95 +85,77 @@
         fetch(csvUrl)
             .then(response => response.text())
             .then(csvData => {
-                const parsedData = parseCSVRobust(csvData);
+                const parsedData = parseCSVForce(csvData);
                 if (parsedData.length === 0) {
-                    document.getElementById('address-book-container').innerHTML = '<div class="loading" style="color:red;">解析成功但無有效資料，請確認試算表內是否含有資料列。</div>';
+                    document.getElementById('address-book-container').innerHTML = '<div class="loading" style="color:red;">解析失敗，請確認試算表內是否有資料。</div>';
                     return;
                 }
                 renderAddressBook(parsedData);
                 
                 const now = new Date();
-                document.getElementById('sync-time').innerText = `雲端安全即時同步成功！更新時間：${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                document.getElementById('sync-time').innerText = `雲端即時同步成功！最新同步：${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
             })
             .catch(err => {
                 console.error(err);
-                document.getElementById('address-book-container').innerHTML = '<div class="loading" style="color:red;">連線失敗！請檢查試算表的「發布到網路」設定是否正確，或網路是否斷線。</div>';
+                document.getElementById('address-book-container').innerHTML = '<div class="loading" style="color:red;">連線失敗！請檢查試算表的發布設定。</div>';
             });
     });
 
-    // 3. 高容錯、高健全度的 CSV 解析器（模糊標題比對，防止隱藏字元導致崩潰）
-    function parseCSVRobust(text) {
+    // 3. 徹底拋棄傳統 CSV 的引號判斷，改用最乾淨、絕對不會卡死崩潰的暴力防呆拆解法
+    function parseCSVForce(text) {
         const lines = text.split(/\r\n|\n/);
         const result = [];
         if (lines.length === 0 || !lines[0].trim()) return result;
-        
-        // 清除第一行可能帶有的 BOM 隱藏字元或前後空白
-        const rawHeaders = splitCSVLine(lines[0]);
-        const headerMapping = { company: -1, dept: -1, name: -1, ext: -1, memo: -1 };
 
-        // 模糊比對欄位名稱，不管它在第幾個、有沒有怪字元，只要包含關鍵字就綁定
+        // 讀取第一列作為標題列，移除所有引號與怪字元
+        const rawHeaders = lines[0].split(',').map(h => h.replace(/"/g, '').trim().replace(/^\uFEFF/, ''));
+        const headerMapping = { company: 0, dept: 1, name: 2, ext: 3, memo: 4 };
+
+        // 模糊尋找欄位索引
         rawHeaders.forEach((h, index) => {
-            const cleanHeader = h.trim().replace(/^\uFEFF/, '');
-            if (cleanHeader.includes('公司')) headerMapping.company = index;
-            else if (cleanHeader.includes('部門')) headerMapping.dept = index;
-            else if (cleanHeader.includes('姓名')) headerMapping.name = index;
-            else if (cleanHeader.includes('分機')) headerMapping.ext = index;
-            else if (cleanHeader.includes('備註')) headerMapping.memo = index;
+            if (h.includes('公司')) headerMapping.company = index;
+            else if (h.includes('部門')) headerMapping.dept = index;
+            else if (h.includes('姓名')) headerMapping.name = index;
+            else if (h.includes('分機')) headerMapping.ext = index;
+            else if (h.includes('備註')) headerMapping.memo = index;
         });
 
-        // 如果連基本的公司、部門、姓名都找不到，就採用傳統索引保底
+        // 逐行暴力拆解，把多餘的引號全部強制清空，確保絕對不斷線、不卡死
         for (let i = 1; i < lines.length; i++) {
             if (!lines[i].trim()) continue;
-            const cols = splitCSVLine(lines[i]);
             
-            // 安全抓取各欄位數值，即使欄位對應失敗也不會拋出 undefined 錯誤
-            const compVal = headerMapping.company !== -1 ? (cols[headerMapping.company] || '') : (cols[0] || '');
-            const deptVal = headerMapping.dept !== -1 ? (cols[headerMapping.dept] || '') : (cols[1] || '');
-            const nameVal = headerMapping.name !== -1 ? (cols[headerMapping.name] || '') : (cols[2] || '');
-            const extVal = headerMapping.ext !== -1 ? (cols[headerMapping.ext] || '') : (cols[3] || '');
-            const memoVal = headerMapping.memo !== -1 ? (cols[headerMapping.memo] || '') : (cols[4] || '');
+            const cols = lines[i].split(',').map(c => c.replace(/"/g, '').trim());
+            
+            const compVal = cols[headerMapping.company] || '';
+            const deptVal = cols[headerMapping.dept] || '';
+            const nameVal = cols[headerMapping.name] || '';
+            const extVal = cols[headerMapping.ext] || '';
+            const memoVal = cols[headerMapping.memo] || '';
+
+            if (!compVal && !deptVal && !nameVal) continue; // 濾掉底部的空白列
 
             result.push({
-                company: compVal.trim(),
-                dept: deptVal.trim(),
-                name: nameVal.trim(),
-                ext: extVal.trim(),
-                memo: memoVal.trim()
+                company: compVal,
+                dept: deptVal,
+                name: nameVal,
+                ext: extVal,
+                memo: memoVal
             });
         }
         return result;
     }
 
-    function splitCSVLine(line) {
-        const result = [];
-        let insideQuote = false;
-        let entry = '';
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            if (char === '"') {
-                insideQuote = !insideQuote;
-            } else if (char === ',' && !insideQuote) {
-                result.push(entry);
-                entry = '';
-            } else {
-                entry += char;
-            }
-        }
-        result.push(entry);
-        return result;
-    }
-
-    // 4. 動態安全建構畫面
+    // 4. 動態安全建構畫面 (保留您要的所有排版與效果)
     function renderAddressBook(data) {
         const container = document.getElementById('address-book-container');
         container.innerHTML = ''; 
 
         targetCompanies.forEach(comp => {
-            // 模糊比對公司名稱是否吻合
+            // 模糊搜尋大公司名稱
             const compRows = data.filter(row => row.company === comp.key || row.company.includes(comp.key));
             if (compRows.length === 0) return;
 
-            // 將部門進行群組
+            // 依照試算表的順序進行部門群組
             const deptMap = new Map();
             compRows.forEach(row => {
                 const deptName = row.dept || '其他';
@@ -211,13 +193,13 @@
                     const ext = staff.ext;
                     const memo = staff.memo;
                     
-                    if (!name && !ext) return; // 空行防呆跳過
+                    if (!name && !ext) return;
 
                     const item = document.createElement('div');
                     item.className = 'staff-item';
                     const displayName = memo ? `${name} (${memo})` : name;
                     
-                    // 大頭照完美對應完整部門名稱
+                    // 大頭照對應完整部門名稱 (只過濾掉斜線)
                     const safeDeptTitle = deptTitle.replace(/[\/]/g, '').trim();
                     const imgUrl = `images/${name}_${safeDeptTitle}.png`;
 
@@ -241,6 +223,7 @@
         });
     }
 
+    // 保證一用就開的展開函式
     function toggleDept(el) {
         const group = el.parentElement;
         group.classList.toggle('expanded');
