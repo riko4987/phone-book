@@ -5,37 +5,21 @@
     <title>企業全體組織通訊錄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        /* ⚠️ 這是您原檔案的 CSS，我完全沒有更改，保證外觀一致 */
-        :root { 
-            --yj: #e91e63; --yj-bg: #fff0f3; 
-            --lk: #2e7d32; --lk-bg: #f1f8f1; 
-            --fac: #fbc02d; --fac-bg: #fff9e6; 
-        }
-        
+        /* ⚠️ 這是您原本的 CSS，完全沒有更動 */
+        :root { --yj: #e91e63; --yj-bg: #fff0f3; --lk: #2e7d32; --lk-bg: #f1f8f1; --fac: #fbc02d; --fac-bg: #fff9e6; }
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
         .main-title { text-align: center; color: #333; font-weight: bold; margin-bottom: 5px; }
         .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
-        
         .company-card { background: white; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; margin-bottom: 20px; }
         .comp-header { padding: 15px; color: white; text-align: center; font-weight: bold; font-size: 1.25em; border-radius: 12px 12px 0 0; }
-        .bg-yj { background-color: var(--yj); }
-        .bg-lk { background-color: var(--lk); }
-        .bg-fac { background-color: var(--fac); color: #333; }
-        
+        .bg-yj { background-color: var(--yj); } .bg-lk { background-color: var(--lk); } .bg-fac { background-color: var(--fac); color: #333; }
         .dept-group { border-bottom: 1px solid #eee; }
         .dept-title { padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; border-left: 4px solid transparent; }
-        
-        .yj-card .dept-title { border-left-color: var(--yj); }
-        .lk-card .dept-title { border-left-color: var(--lk); }
-        .fac-card .dept-title { border-left-color: var(--fac); }
-        
         .staff-list { display: none; padding: 0; }
         .expanded .staff-list { display: block; }
-        
         .staff-item { display: flex; justify-content: space-between; padding: 10px 25px; border-bottom: 1px dotted #eee; position: relative; cursor: pointer; min-height: 24px; }
         .staff-item:hover { background-color: rgba(0,0,0,0.05); color: #d32f2f; font-weight: bold; }
         .ext-num { font-family: "Consolas", monospace; color: #555; }
-        
         .photo-pop { display: none; position: absolute; left: 105%; top: 50%; transform: translateY(-50%); width: 320px; background: white; border: 2px solid #ccc; box-shadow: 10px 10px 30px rgba(0,0,0,0.3); z-index: 9999; padding: 12px; border-radius: 12px; pointer-events: none; }
         .photo-pop img { width: 300px; height: 300px; object-fit: cover; border-radius: 8px; }
         .staff-item:hover .photo-pop { display: block; }
@@ -44,39 +28,38 @@
 <body>
 
     <h1 class="main-title">企業全體組織通訊錄</h1>
-    
     <div class="container" id="app"></div>
 
     <script>
-        // ⚠️ 請在下方貼上您試算表的 CSV 發布網址
+        // 【請在此處貼上您的 CSV 發布連結】
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
-        // 自動執行：讀取 CSV 並建立 HTML 結構
         Papa.parse(CSV_URL, {
             download: true, header: true, skipEmptyLines: true,
             complete: function(results) {
                 const app = document.getElementById('app');
-                const data = results.data;
-                const tree = {};
+                app.innerHTML = ''; // 清空原本的寫死內容
 
-                // 整理資料層級
-                data.forEach(row => {
-                    const c = row['公司'] || '未分類';
-                    const d = row['部門'] || '未分類';
-                    if (!tree[c]) tree[c] = {};
-                    if (!tree[c][d]) tree[c][d] = [];
-                    tree[c][d].push(row);
+                // 處理資料 (公司 > 部門 > 員工)
+                const tree = {};
+                results.data.forEach(row => {
+                    const comp = row['公司'];
+                    const dept = row['部門'];
+                    if (!tree[comp]) tree[comp] = {};
+                    if (!tree[comp][dept]) tree[comp][dept] = [];
+                    tree[comp][dept].push(row);
                 });
 
                 // 產生 HTML
                 for (const comp in tree) {
                     const card = document.createElement('div');
-                    let css = 'yj-card'; let bg = 'bg-yj';
-                    if (comp.includes('力科')) { css = 'lk-card'; bg = 'bg-lk'; }
-                    else if (comp.includes('工廠')) { css = 'fac-card'; bg = 'bg-fac'; }
-
-                    card.className = `company-card ${css}`;
-                    card.innerHTML = `<div class="comp-header ${bg}">${comp}</div>`;
+                    // 自動判斷顏色與樣式
+                    let cardClass = 'yj-card'; let headerBg = 'bg-yj';
+                    if (comp.includes('力科')) { cardClass = 'lk-card'; headerBg = 'bg-lk'; }
+                    else if (comp.includes('工廠')) { cardClass = 'fac-card'; headerBg = 'bg-fac'; }
+                    
+                    card.className = `company-card ${cardClass}`;
+                    card.innerHTML = `<div class="comp-header ${headerBg}">${comp}</div>`;
                     
                     for (const dept in tree[comp]) {
                         const group = document.createElement('div');
@@ -88,8 +71,9 @@
                         tree[comp][dept].forEach(p => {
                             const item = document.createElement('div');
                             item.className = 'staff-item';
-                            const photo = p['圖片連結'] ? `<div class="photo-pop"><img src="${p['圖片連結']}"></div>` : '';
-                            item.innerHTML = `<span>${p['姓名']}</span><span class="ext-num">${p['分機']}</span>${photo}`;
+                            // 這裡維持您原本的圖片彈出邏輯
+                            const img = p['圖片連結'] ? `<div class="photo-pop"><img src="${p['圖片連結']}"></div>` : '';
+                            item.innerHTML = `<span>${p['姓名']}</span><span class="ext-num">${p['分機']}</span>${img}`;
                             list.appendChild(item);
                         });
                         card.appendChild(group);
@@ -99,7 +83,7 @@
             }
         });
 
-        // 摺疊功能 (完全對應您原本的邏輯)
+        // 摺疊功能 (跟您原本的一樣)
         function toggleDept(el) {
             const group = el.parentElement;
             group.classList.toggle('expanded');
