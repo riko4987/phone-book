@@ -5,70 +5,63 @@
     <title>公司通訊錄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f6f8; margin: 20px; }
-        .container { max-width: 600px; margin: auto; }
-        input { width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .card { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; overflow: hidden; }
-        .dept-header { background: #333; color: white; padding: 10px 15px; font-weight: bold; }
-        .row { display: flex; padding: 10px 15px; border-bottom: 1px solid #eee; justify-content: space-between; }
-        .ext { color: #007bff; font-weight: bold; width: 60px; }
+        body { font-family: sans-serif; background: #f4f4f4; padding: 10px; }
+        .card { background: white; margin: 10px 0; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .row { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 5px 0; }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; }
+        .dept-title { font-weight: bold; color: #555; margin-bottom: 5px; font-size: 0.9em; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <input type="text" id="search" placeholder="輸入關鍵字搜尋（例如：會議室、姓名）">
-    <div id="app">資料讀取中...</div>
-</div>
+<input type="text" id="search" placeholder="搜尋分機、部門或姓名...">
+<div id="app">資料載入中...</div>
 
 <script>
+    // 請將網址填入下方
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
-    let allData = [];
-
-    function render(data) {
-        const app = document.getElementById('app');
-        app.innerHTML = '';
-        
-        // 分組邏輯：以 row[1] (部門) 為群組
-        const groups = {};
-        data.forEach(row => {
-            const dept = row[1] || '未分類';
-            if (!groups[dept]) groups[dept] = [];
-            groups[dept].push(row);
-        });
-
-        // 渲染畫面
-        for (const dept in groups) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `<div class="dept-header">${dept}</div>`;
-            groups[dept].forEach(r => {
-                card.innerHTML += `<div class="row">
-                    <span>${r[2] || '-'}</span>
-                    <span class="ext">${r[0] || '-'}</span>
-                </div>`;
-            });
-            app.appendChild(card);
-        }
-    }
 
     Papa.parse(CSV_URL, {
         download: true,
-        header: false, // 強制不使用 Header，直接抓位置
+        header: false, // 關鍵：強制不使用標題列
         skipEmptyLines: true,
-        complete: (results) => {
-            allData = results.data;
-            render(allData);
+        complete: function(results) {
+            const data = results.data;
+            const app = document.getElementById('app');
+            
+            function render(filterText = '') {
+                app.innerHTML = '';
+                data.forEach(row => {
+                    // row[0] = 分機, row[1] = 部門, row[2] = 姓名
+                    const ext = row[0] || '';
+                    const dept = row[1] || '';
+                    const name = row[2] || '';
+                    
+                    // 搜尋邏輯
+                    if (filterText && !(ext.includes(filterText) || dept.includes(filterText) || name.includes(filterText))) {
+                        return;
+                    }
 
-            document.getElementById('search').oninput = (e) => {
-                const term = e.target.value.toLowerCase();
-                const filtered = allData.filter(r => 
-                    (r[0]||'').toLowerCase().includes(term) || 
-                    (r[1]||'').toLowerCase().includes(term) || 
-                    (r[2]||'').toLowerCase().includes(term)
-                );
-                render(filtered);
-            };
+                    const div = document.createElement('div');
+                    div.className = 'card';
+                    div.innerHTML = `
+                        <div class="dept-title">${dept}</div>
+                        <div class="row">
+                            <span>${name}</span>
+                            <span>${ext}</span>
+                        </div>
+                    `;
+                    app.appendChild(div);
+                });
+            }
+
+            // 初始化渲染
+            render();
+
+            // 搜尋監聽
+            document.getElementById('search').addEventListener('input', (e) => {
+                render(e.target.value);
+            });
         }
     });
 </script>
