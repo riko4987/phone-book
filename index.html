@@ -1,22 +1,84 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>企業組織通訊錄</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; }
+        .header { background: #333; color: white; padding: 15px; font-weight: bold; }
+        .dept { background: #eee; padding: 10px; cursor: pointer; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; }
+        .staff { padding: 10px 20px; border-bottom: 1px dotted #ccc; display: flex; justify-content: space-between; }
+        .hidden { display: none; }
+    </style>
+</head>
 <body>
-    <div id="status">正在同步資料...</div>
-    <script>
-        // 【請貼上剛剛複製的 CSV 公開網址】
-        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
-        fetch(csvUrl)
-            .then(res => res.text())
-            .then(csvText => {
-                // 簡易將 CSV 轉為陣列
-                const rows = csvText.split('\n').map(row => row.split(','));
-                document.getElementById('status').innerText = '同步成功！共讀取 ' + rows.length + ' 筆資料。';
-                console.log(rows); // 按 F12 在 Console 查看資料結構
-            })
-            .catch(err => {
-                document.getElementById('status').innerText = '連線失敗：' + err;
-            });
-    </script>
+<div class="container" id="app">
+    <h3>正在載入通訊資料...</h3>
+</div>
+
+<script>
+    // 【請貼上您的 CSV 發布網址】
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
+
+    function init() {
+        Papa.parse(CSV_URL, {
+            download: true,
+            header: true, // 假設第一列是欄位名稱
+            skipEmptyLines: true,
+            complete: function(results) {
+                render(results.data);
+            },
+            error: function(err) {
+                document.getElementById('app').innerHTML = '<h3 style="color:red;">載入失敗，請確認試算表已發布。</h3>';
+            }
+        });
+    }
+
+    function render(data) {
+        const app = document.getElementById('app');
+        app.innerHTML = ''; // 清空載入中字樣
+        
+        // 依據您的欄位名稱進行分組 (假設 CSV 欄位名稱為：公司, 部門, 姓名, 分機)
+        // 這裡會自動按「公司」分組
+        const grouped = data.reduce((acc, row) => {
+            const comp = row['公司'] || '未分類';
+            if (!acc[comp]) acc[comp] = {};
+            const dept = row['部門'] || '其他';
+            if (!acc[comp][dept]) acc[comp][dept] = [];
+            acc[comp][dept].push(row);
+            return acc;
+        }, {});
+
+        for (const comp in grouped) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `<div class="header">${comp}</div>`;
+            
+            for (const dept in grouped[comp]) {
+                const deptDiv = document.createElement('div');
+                deptDiv.className = 'dept';
+                deptDiv.innerHTML = `<span>${dept}</span><span>▼</span>`;
+                
+                const listDiv = document.createElement('div');
+                listDiv.className = 'hidden';
+                
+                grouped[comp][dept].forEach(p => {
+                    listDiv.innerHTML += `<div class="staff"><span>${p['姓名']}</span><span>${p['分機']}</span></div>`;
+                });
+
+                deptDiv.onclick = () => listDiv.classList.toggle('hidden');
+                card.appendChild(deptDiv);
+                card.appendChild(listDiv);
+            }
+            app.appendChild(card);
+        }
+    }
+
+    init();
+</script>
 </body>
 </html>
