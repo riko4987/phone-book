@@ -2,48 +2,75 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>通訊錄</title>
+    <title>公司通訊錄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        .row { border-bottom: 1px solid #ccc; padding: 10px; display: flex; justify-content: space-between; }
-        .data { font-weight: bold; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f6f8; margin: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        input { width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; overflow: hidden; }
+        .dept-header { background: #333; color: white; padding: 10px 15px; font-weight: bold; }
+        .row { display: flex; padding: 10px 15px; border-bottom: 1px solid #eee; justify-content: space-between; }
+        .ext { color: #007bff; font-weight: bold; width: 60px; }
     </style>
 </head>
 <body>
-    <div id="app">正在讀取...</div>
 
-    <script>
-        // 【請貼上您的 CSV 網址】
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
+<div class="container">
+    <input type="text" id="search" placeholder="輸入關鍵字搜尋（例如：會議室、姓名）">
+    <div id="app">資料讀取中...</div>
+</div>
 
-        Papa.parse(CSV_URL, {
-            download: true,
-            header: false, // 改為 false，代表不讀取標題，直接讀取資料列
-            skipEmptyLines: true,
-            complete: function(results) {
-                const app = document.getElementById('app');
-                app.innerHTML = '';
-                
-                // results.data 變成一個二維陣列
-                results.data.forEach((row, index) => {
-                    // 如果第一行是標題，您可以把 index === 0 這行判斷去掉
-                    // 目前設定直接從第一行開始顯示
-                    const col1 = row[0] || ''; // 第 1 欄
-                    const col2 = row[1] || ''; // 第 2 欄
-                    const col3 = row[2] || ''; // 第 3 欄
-                    
-                    app.innerHTML += `<div class="row">
-                        <span>${col1}</span> 
-                        <span>${col2}</span> 
-                        <span class="data">${col3}</span>
-                    </div>`;
-                });
-            },
-            error: function(err) {
-                document.getElementById('app').innerText = '讀取失敗: ' + err.message;
-            }
+<script>
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
+    let allData = [];
+
+    function render(data) {
+        const app = document.getElementById('app');
+        app.innerHTML = '';
+        
+        // 分組邏輯：以 row[1] (部門) 為群組
+        const groups = {};
+        data.forEach(row => {
+            const dept = row[1] || '未分類';
+            if (!groups[dept]) groups[dept] = [];
+            groups[dept].push(row);
         });
-    </script>
+
+        // 渲染畫面
+        for (const dept in groups) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `<div class="dept-header">${dept}</div>`;
+            groups[dept].forEach(r => {
+                card.innerHTML += `<div class="row">
+                    <span>${r[2] || '-'}</span>
+                    <span class="ext">${r[0] || '-'}</span>
+                </div>`;
+            });
+            app.appendChild(card);
+        }
+    }
+
+    Papa.parse(CSV_URL, {
+        download: true,
+        header: false, // 強制不使用 Header，直接抓位置
+        skipEmptyLines: true,
+        complete: (results) => {
+            allData = results.data;
+            render(allData);
+
+            document.getElementById('search').oninput = (e) => {
+                const term = e.target.value.toLowerCase();
+                const filtered = allData.filter(r => 
+                    (r[0]||'').toLowerCase().includes(term) || 
+                    (r[1]||'').toLowerCase().includes(term) || 
+                    (r[2]||'').toLowerCase().includes(term)
+                );
+                render(filtered);
+            };
+        }
+    });
+</script>
 </body>
 </html>
