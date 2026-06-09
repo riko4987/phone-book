@@ -40,7 +40,7 @@
         .staff-item:hover { background-color: rgba(0,0,0,0.05); color: #d32f2f; font-weight: bold; }
         .ext-num { font-family: "Consolas", monospace; color: #555; }
 
-        /* 懸浮大頭照特製特效 */
+        /* 懸浮大頭照特效 */
         .photo-pop {
             display: none; position: absolute; left: 105%; top: 50%; transform: translateY(-50%);
             width: 320px; background: white; border: 2px solid #ccc; box-shadow: 10px 10px 30px rgba(0,0,0,0.3); 
@@ -69,7 +69,7 @@
     // 1. 請在此處替換為您的 Google 試算表「發布為 CSV」的連結
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
-    // 2. 嚴格鎖定三大公司分類，依照這三個順序置頂與著色
+    // 2. 嚴格置頂三大核心公司分類
     const targetCompanies = [
         { key: '永鉅電機', name: '永鉅電機 (簡碼 88)', cardClass: 'yj-card', headerClass: 'bg-yj' },
         { key: '力科光電', name: '力科光電 (簡碼 66)', cardClass: 'lk-card', headerClass: 'bg-lk' },
@@ -136,17 +136,15 @@
         return result;
     }
 
-    // 動態建構畫面，完全由試算表內容決定群組與部門
+    // 動態建構畫面
     function renderAddressBook(data) {
         const container = document.getElementById('address-book-container');
         container.innerHTML = ''; 
 
         targetCompanies.forEach(comp => {
-            // 篩選出屬於該公司的所有列
             const compRows = data.filter(row => row['公司分類'] === comp.key);
             if (compRows.length === 0) return;
 
-            // 根據試算表中的「部門分類」依序分組，維持試算表的原始順序
             const deptMap = new Map();
             compRows.forEach(row => {
                 const deptName = row['部門分類'] || '其他';
@@ -156,7 +154,6 @@
                 deptMap.get(deptName).push(row);
             });
 
-            // 建立公司卡片
             const card = document.createElement('div');
             card.className = `company-card ${comp.cardClass}`;
 
@@ -168,12 +165,10 @@
             const deptContainer = document.createElement('div');
             deptContainer.className = 'dept-container';
 
-            // 建立部門與人員
             deptMap.forEach((staffs, deptTitle) => {
                 const deptGroup = document.createElement('div');
                 deptGroup.className = 'dept-group';
 
-                // 部門標題 (直接綁定內聯 onclick 確保 100% 能點開)
                 const titleDiv = document.createElement('div');
                 titleDiv.className = 'dept-title';
                 titleDiv.setAttribute('onclick', 'toggleDept(this)');
@@ -190,12 +185,12 @@
                     const item = document.createElement('div');
                     item.className = 'staff-item';
 
-                    // 如果有備註則加上括號
                     const displayName = memo ? `${name} (${memo})` : name;
                     
-                    // 大頭照自動對應：images/姓名_部門分類(去掉空格與斜線).png
-                    const cleanDeptTitle = deptTitle.split(' ')[0].replace(/[\/\s]/g, '');
-                    const imgUrl = `images/${name}_${cleanDeptTitle}.png`;
+                    // 【徹底修正】完全移除自作聰明的切斷邏輯，直接抓取 姓名_完整部門名稱.png
+                    // 只過濾掉檔名不合法的特殊符號（例如斜線），保留您最原始的部門全名
+                    const safeDeptTitle = deptTitle.replace(/[\/]/g, '').trim();
+                    const imgUrl = `images/${name}_${safeDeptTitle}.png`;
 
                     item.innerHTML = `
                         <span>${displayName}</span>
@@ -217,7 +212,6 @@
         });
     }
 
-    // 無論何時何地用手點擊都絕對能順利切換開合的函式
     function toggleDept(el) {
         const group = el.parentElement;
         group.classList.toggle('expanded');
