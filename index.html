@@ -5,13 +5,14 @@
     <title>公司通訊錄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { font-family: sans-serif; background-color: #f4f4f9; padding: 20px; margin: 0; }
+        body { font-family: sans-serif; background-color: #f4f4f4; padding: 20px; }
         .container { max-width: 600px; margin: auto; }
-        .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); margin-bottom: 20px; overflow: hidden; }
-        .dept-header { background: #2c3e50; color: white; padding: 12px 15px; font-weight: bold; font-size: 1.1em; letter-spacing: 1px; }
-        .row { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #eee; align-items: center; }
-        .name { font-weight: bold; color: #333; }
-        .ext { color: #e67e22; font-weight: bold; font-size: 1.1em; }
+        /* 視覺樣式：與您的原檔案一致 */
+        .card { background: white; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; }
+        .dept-header { background: #333; color: white; padding: 10px 15px; font-weight: bold; }
+        .row { display: flex; justify-content: space-between; padding: 10px 15px; border-bottom: 1px solid #eee; }
+        .row:last-child { border-bottom: none; }
+        .ext-text { color: #555; }
     </style>
 </head>
 <body>
@@ -19,12 +20,12 @@
 <div class="container" id="app">資料載入中...</div>
 
 <script>
-    // 這裡貼上您的 CSV 發布連結
+    // 請將這裡改為您的 Google CSV 發布連結
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
     Papa.parse(CSV_URL, {
         download: true,
-        header: false,
+        header: false, // 關鍵：不依賴標題列
         skipEmptyLines: true,
         complete: function(results) {
             const data = results.data;
@@ -32,9 +33,11 @@
             app.innerHTML = ''; 
 
             const groups = {};
-            // 直接指定欄位：A欄[0]=部門, B欄[1]=姓名, C欄[2]=分機
+
+            // 資料處理：直接指定欄位位置
+            // A欄(0) = 部門, B欄(1) = 姓名, C欄(2) = 分機
             data.forEach((row, index) => {
-                // 如果您的第一列是標題，請保留這行；如果沒有標題，請刪除這行
+                // 如果第一行是標題，請保留下面這行；若無標題，請刪除
                 if (index === 0) return; 
 
                 const dept = row[0] || '未分類';
@@ -45,7 +48,7 @@
                 groups[dept].push({ name, ext });
             });
 
-            // 渲染：完全依照您原本的卡片風格
+            // 渲染：產生符合您審美的卡片結構
             for (const dept in groups) {
                 const card = document.createElement('div');
                 card.className = 'card';
@@ -54,7 +57,7 @@
                 groups[dept].forEach(item => {
                     const row = document.createElement('div');
                     row.className = 'row';
-                    row.innerHTML = `<span class="name">${item.name}</span><span class="ext">${item.ext}</span>`;
+                    row.innerHTML = `<span>${item.name}</span><span class="ext-text">${item.ext}</span>`;
                     card.appendChild(row);
                 });
                 app.appendChild(card);
