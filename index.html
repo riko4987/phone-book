@@ -5,7 +5,7 @@
     <title>企業全體組織通訊錄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        /* ⚠️ 以下 CSS 與您原本的檔案完全一致 */
+        /* 您的原始 CSS 設定 (完全沒動) */
         :root { --yj: #e91e63; --yj-bg: #fff0f3; --lk: #2e7d32; --lk-bg: #f1f8f1; --fac: #fbc02d; --fac-bg: #fff9e6; }
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
         .main-title { text-align: center; color: #333; font-weight: bold; margin-bottom: 5px; }
@@ -26,64 +26,59 @@
     </style>
 </head>
 <body>
-
     <h1 class="main-title">企業全體組織通訊錄</h1>
-    <div class="container" id="app"></div>
+    <div class="container" id="app">資料同步中...</div>
 
     <script>
-        // ⚠️ 請將此處改為您發布的 CSV 網址
+        // 【在這裡貼上您的 Google 試算表 CSV 發布連結】
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
         Papa.parse(CSV_URL, {
             download: true, header: true, skipEmptyLines: true,
             complete: function(results) {
-                const app = document.getElementById('app');
-                app.innerHTML = ''; // 清空原本的 HTML 內容
-
-                // 將 CSV 資料依照「公司」與「部門」進行分組
-                const tree = {};
-                results.data.forEach(row => {
-                    const comp = row['公司'] || '未分類';
-                    const dept = row['部門'] || '未分類';
-                    if (!tree[comp]) tree[comp] = {};
-                    if (!tree[comp][dept]) tree[comp][dept] = [];
-                    tree[comp][dept].push(row);
+                const container = document.getElementById('app');
+                container.innerHTML = '';
+                
+                // 資料分組
+                const data = results.data;
+                const groups = {};
+                data.forEach(row => {
+                    const c = row['公司'] || '未分類';
+                    const d = row['部門'] || '未分類';
+                    if (!groups[c]) groups[c] = {};
+                    if (!groups[c][d]) groups[c][d] = [];
+                    groups[c][d].push(row);
                 });
 
-                // 產生與原檔案結構一致的 HTML
-                for (const comp in tree) {
+                // 渲染 HTML
+                for (const comp in groups) {
+                    let cardClass = comp.includes('力科') ? 'lk-card' : (comp.includes('工廠') ? 'fac-card' : 'yj-card');
+                    let headBg = comp.includes('力科') ? 'bg-lk' : (comp.includes('工廠') ? 'bg-fac' : 'bg-yj');
+                    
                     const card = document.createElement('div');
-                    // 自動判斷顏色類別
-                    let css = 'yj-card'; let bg = 'bg-yj';
-                    if (comp.includes('力科')) { css = 'lk-card'; bg = 'bg-lk'; }
-                    else if (comp.includes('工廠')) { css = 'fac-card'; bg = 'bg-fac'; }
-                    
-                    card.className = `company-card ${css}`;
-                    card.innerHTML = `<div class="comp-header ${bg}">${comp}</div>`;
-                    
-                    for (const dept in tree[comp]) {
-                        const group = document.createElement('div');
-                        group.className = 'dept-group';
-                        group.innerHTML = `<div class="dept-title" onclick="toggleDept(this)">${dept} <span>[+]</span></div>
-                                           <div class="staff-list"></div>`;
-                        
-                        const list = group.querySelector('.staff-list');
-                        tree[comp][dept].forEach(p => {
+                    card.className = `company-card ${cardClass}`;
+                    card.innerHTML = `<div class="comp-header ${headBg}">${comp}</div>`;
+
+                    for (const dept in groups[comp]) {
+                        const deptDiv = document.createElement('div');
+                        deptDiv.className = 'dept-group';
+                        deptDiv.innerHTML = `<div class="dept-title" onclick="toggleDept(this)">${dept} <span>[+]</span></div>
+                                             <div class="staff-list"></div>`;
+                        const list = deptDiv.querySelector('.staff-list');
+                        groups[comp][dept].forEach(p => {
                             const item = document.createElement('div');
                             item.className = 'staff-item';
-                            // 這裡維持您原本的圖片彈窗 HTML 結構
-                            const photo = p['圖片連結'] ? `<div class="photo-pop"><img src="${p['圖片連結']}"></div>` : '';
-                            item.innerHTML = `<span>${p['姓名']}</span><span class="ext-num">${p['分機']}</span>${photo}`;
+                            const img = p['圖片連結'] ? `<div class="photo-pop"><img src="${p['圖片連結']}"></div>` : '';
+                            item.innerHTML = `<span>${p['姓名']}</span><span class="ext-num">${p['分機']}</span>${img}`;
                             list.appendChild(item);
                         });
-                        card.appendChild(group);
+                        card.appendChild(deptDiv);
                     }
-                    app.appendChild(card);
+                    container.appendChild(card);
                 }
             }
         });
 
-        // 摺疊功能
         function toggleDept(el) {
             const group = el.parentElement;
             group.classList.toggle('expanded');
