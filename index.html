@@ -28,12 +28,13 @@
         .company-card.lk-card .dept-group:hover { background-color: var(--lk-bg); }
         .company-card.fac-card .dept-group:hover { background-color: var(--fac-bg); }
 
-        .dept-title { padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; border-left: 4px solid transparent; }
+        /* 確保整行都能點擊，並顯示手指游標 */
+        .dept-title { padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; border-left: 4px solid transparent; user-select: none; }
         .company-card.yj-card .dept-title { border-left-color: var(--yj); }
         .company-card.lk-card .dept-title { border-left-color: var(--lk); }
         .company-card.fac-card .dept-title { border-left-color: var(--fac); }
 
-        .staff-list { display: none; padding: 0; }
+        .staff-list { display: none; padding: 0; background-color: #fafafa; }
         .expanded .staff-list { display: block; }
 
         .staff-item { display: flex; justify-content: space-between; padding: 10px 25px; border-bottom: 1px dotted #eee; position: relative; cursor: pointer; min-height: 24px;}
@@ -46,9 +47,7 @@
             z-index: 9999; padding: 12px; border-radius: 12px; pointer-events: none;
         }
 
-        .fac-card .photo-pop {
-            left: auto; right: 105%; box-shadow: -10px 10px 30px rgba(0,0,0,0.3);
-        }
+        .fac-card .photo-pop { left: auto; right: 105%; box-shadow: -10px 10px 30px rgba(0,0,0,0.3); }
 
         .yj-card .photo-pop { border-color: var(--yj); }
         .lk-card .photo-pop { border-color: var(--lk); }
@@ -67,21 +66,21 @@
         <div class="comp-header bg-yj">永鉅電機 (簡碼 88)</div>
         <div class="dept-container">
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">會議室 (A8/A9) <span>[+]</span></div>
+                <div class="dept-title">會議室 (A8/A9) <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>會議室</span><span class="ext-num">8335/8330</span></div>
                     <div class="staff-item"><span>會客室</span><span class="ext-num">8339</span></div>
                 </div>
             </div>
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">國貿部 (A7) <span>[+]</span></div>
+                <div class="dept-title">國貿部 (A7) <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>蘇聖閔</span><span class="ext-num">8243</span><div class="photo-pop"><img src="images/蘇聖閔_國貿部.png" onerror="this.parentElement.style.display='none';"></div></div>
                     <div class="staff-item"><span>戴淑敏</span><span class="ext-num">8245</span><div class="photo-pop"><img src="images/戴淑敏_國貿部.png" onerror="this.parentElement.style.display='none';"></div></div>
                 </div>
             </div>
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">RiKO業務 / 技術 / 業助 (A7) <span>[+]</span></div>
+                <div class="dept-title">RiKO業務 / 技術 / 業助 (A7) <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>林志豪</span><span class="ext-num">8235</span><div class="photo-pop"><img src="images/林志豪_RiKO業務.png" onerror="this.parentElement.style.display='none';"></div></div>
                     <div class="staff-item"><span>張富宸</span><span class="ext-num">8236</span><div class="photo-pop"><img src="images/張富宸_RiKO業務.png" onerror="this.parentElement.style.display='none';"></div></div>
@@ -89,13 +88,13 @@
                 </div>
             </div>
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">倉庫 / 櫃台 (A1) <span>[+]</span></div>
+                <div class="dept-title">倉庫 / 櫃台 (A1) <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>徐宜君</span><span class="ext-num">8241</span><div class="photo-pop"><img src="images/徐宜君_櫃台.png" onerror="this.parentElement.style.display='none';"></div></div>
                 </div>
             </div>
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">Power技術 / 業務 (A7) <span>[+]</span></div>
+                <div class="dept-title">Power技術 / 業務 (A7) <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>徐俊國</span><span class="ext-num">8266</span><div class="photo-pop"><img src="images/徐俊國_Power技術.png" onerror="this.parentElement.style.display='none';"></div></div>
                     <div class="staff-item"><span>王治喬</span><span class="ext-num">8299</span><div class="photo-pop"><img src="images/王治喬_Power技術.png" onerror="this.parentElement.style.display='none';"></div></div>
@@ -104,7 +103,7 @@
                 </div>
             </div>
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">財會 / 人事 (A8) <span>[+]</span></div>
+                <div class="dept-title">財會 / 人事 (A8) <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>陳沈宏</span><span class="ext-num">8272</span><div class="photo-pop"><img src="images/陳沈宏_財會人事.png" onerror="this.parentElement.style.display='none';"></div></div>
                     <div class="staff-item"><span>黃美媖</span><span class="ext-num">8250</span><div class="photo-pop"><img src="images/黃美媖_財會人事.png" onerror="this.parentElement.style.display='none';"></div></div>
@@ -115,7 +114,7 @@
                 </div>
             </div>
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">中區 / 南區業務 <span>[+]</span></div>
+                <div class="dept-title">中區 / 南區業務 <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>黃喬微 (中區)</span><span class="ext-num">898</span><div class="photo-pop"><img src="images/黃喬微_中區業務.png" onerror="this.parentElement.style.display='none';"></div></div>
                     <div class="staff-item"><span>許秀惠 (中區)</span><span class="ext-num">897</span><div class="photo-pop"><img src="images/許秀惠_中區業務.png" onerror="this.parentElement.style.display='none';"></div></div>
@@ -129,13 +128,13 @@
         <div class="comp-header bg-lk">力科光電 (簡碼 66)</div>
         <div class="dept-container">
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">總經理室 (A1) <span>[+]</span></div>
+                <div class="dept-title">總經理室 (A1) <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>陳宏澤</span><span class="ext-num">6212</span><div class="photo-pop"><img src="images/陳宏澤_總經理室.png" onerror="this.parentElement.style.display='none';"></div></div>
                 </div>
             </div>
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">機構課 / 技轉課 / 實驗室 (A10) <span>[+]</span></div>
+                <div class="dept-title">機構課 / 技轉課 / 實驗室 (A10) <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>王瑞琪</span><span class="ext-num">8277</span><div class="photo-pop"><img src="images/王瑞琪_機構課.png" onerror="this.parentElement.style.display='none';"></div></div>
                     <div class="staff-item"><span>胡家綺</span><span class="ext-num">8372</span><div class="photo-pop"><img src="images/胡家綺_技轉課.png" onerror="this.parentElement.style.display='none';"></div></div>
@@ -143,7 +142,7 @@
                 </div>
             </div>
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">視覺 / 光電 / PM / DALI (A11) <span>[+]</span></div>
+                <div class="dept-title">視覺 / 光電 / PM / DALI (A11) <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>侯佳妘 (DALI)</span><span class="ext-num">6272</span><div class="photo-pop"><img src="images/侯佳妘_DALI小組.png" onerror="this.parentElement.style.display='none';"></div></div>
                     <div class="staff-item"><span>裴氏金鸞 (DALI)</span><span class="ext-num">6272</span><div class="photo-pop"><img src="images/裴氏金鸞_DALI小組.png" onerror="this.parentElement.style.display='none';"></div></div>
@@ -154,14 +153,14 @@
                 </div>
             </div>
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">管理 / 總務 / 威力科 / 資管 <span>[+]</span></div>
+                <div class="dept-title">管理 / 總務 / 威力科 / 資管 <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>吳胤輝 (資管)</span><span class="ext-num">6354</span><div class="photo-pop"><img src="images/吳胤輝_資管.png" onerror="this.parentElement.style.display='none';"></div></div>
                     <div class="staff-item"><span>鍾淑如 (管理部)</span><span class="ext-num">6364</span><div class="photo-pop"><img src="images/鍾淑如_管理部.png" onerror="this.parentElement.style.display='none';"></div></div>
                 </div>
             </div>
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">美編 / 門市 (A8/77) <span>[+]</span></div>
+                <div class="dept-title">美編 / 門市 <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>黃書慧 (美編)</span><span class="ext-num">6306</span><div class="photo-pop"><img src="images/黃書慧_美編.png" onerror="this.parentElement.style.display='none';"></div></div>
                     <div class="staff-item"><span>程献中 (美編)</span><span class="ext-num">6334</span><div class="photo-pop"><img src="images/程献中_美編.png" onerror="this.parentElement.style.display='none';"></div></div>
@@ -176,67 +175,26 @@
         <div class="comp-header bg-fac">力科工廠 (簡碼 33)</div>
         <div class="dept-container">
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">1F 包射、品保 <span>[+]</span></div>
+                <div class="dept-title">1F 包射、品保 <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>陳金英 (包射區)</span><span class="ext-num">218</span><div class="photo-pop"><img src="images/陳金英_包射區.png" onerror="this.parentElement.style.display='none';"></div></div>
                     <div class="staff-item"><span>阮氏清 (包射區)</span><span class="ext-num">218</span><div class="photo-pop"><img src="images/阮氏清_包射區.png" onerror="this.parentElement.style.display='none';"></div></div>
                 </div>
             </div>
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">2F 力科倉 <span>[+]</span></div>
+                <div class="dept-title">2F 力科倉 <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>陳美足 (力科倉)</span><span class="ext-num">220/256</span><div class="photo-pop"><img src="images/陳美足_力科倉.png" onerror="this.parentElement.style.display='none';"></div></div>
                 </div>
             </div>
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">3F 光纖產線 <span>[+]</span></div>
+                <div class="dept-title">3F 光纖產線 <span>[+]</span></div>
                 <div class="staff-list">
                     <div class="staff-item"><span>陳姿均 (光纖產線)</span><span class="ext-num">221</span><div class="photo-pop"><img src="images/陳姿均_光纖產線.png" onerror="this.parentElement.style.display='none';"></div></div>
                     <div class="staff-item"><span>范氏蘭英 (光纖產線)</span><span class="ext-num">221</span><div class="photo-pop"><img src="images/范氏蘭英_光纖產線.png" onerror="this.parentElement.style.display='none';"></div></div>
                 </div>
             </div>
             <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">4F 自動化產線 / 電子產線 <span>[+]</span></div>
+                <div class="dept-title">4F 自動化產線 / 電子產線 <span>[+]</span></div>
                 <div class="staff-list">
-                    <div class="staff-item"><span>劉得全 (自動化產線)</span><span class="ext-num">223</span><div class="photo-pop"><img src="images/劉得全_自動化產線.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>張嘉惠 (電子產線)</span><span class="ext-num">223</span><div class="photo-pop"><img src="images/張嘉惠_電子產線.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">5F 電子自動化課 <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>黃俊榮 (電子自動化課)</span><span class="ext-num">226</span><div class="photo-pop"><img src="images/黃俊榮_電子自動化課.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>徐健倫 (電子自動化課)</span><span class="ext-num">253</span><div class="photo-pop"><img src="images/徐健倫_電子自動化課.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">6F 管理、資材課 / 品保課 <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>黃顗珍 (管理資材課)</span><span class="ext-num">251</span><div class="photo-pop"><img src="images/黃顗珍_管理資材課.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>王福祥 (品保課)</span><span class="ext-num">232</span><div class="photo-pop"><img src="images/王福祥_品保課.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>林春富 (品保課)</span><span class="ext-num">216</span><div class="photo-pop"><img src="images/林春富_品保課.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>阮柏儀 (品保課)</span><span class="ext-num">255</span><div class="photo-pop"><img src="images/阮柏儀_品保課.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>宋炎庭 (品保課)</span><span class="ext-num">255</span><div class="photo-pop"><img src="images/宋炎庭_品保課.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">7F 會議室、實驗室 <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>會議室</span><span class="ext-num">366</span></div>
-                    <div class="staff-item"><span>陳淑蘭</span><span class="ext-num">320</span><div class="photo-pop"><img src="images/陳淑蘭_會議室實驗室.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    function toggleDept(el) {
-        const group = el.parentElement;
-        group.classList.toggle('expanded');
-        el.querySelector('span').innerText = group.classList.contains('expanded') ? '[-]' : '[+]';
-    }
-</script>
-
-</body>
-</html>
+                    <div class="staff-item"><span>劉得
