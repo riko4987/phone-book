@@ -139,7 +139,8 @@
     }
 
     function parseAndRender(csvText) {
-        const rows = csvText.split("\n").map(row => row.split(",").map(cell => cell.trim()));
+        // 使用正則拆分行，完全過濾抹除 \r 換行符號帶來的惡性干擾
+        const rows = csvText.split(/\r?\n/).map(row => row.split(",").map(cell => cell.trim()));
         
         let updateDate = "2026-05-29"; 
         if (rows[0] && rows[0].length > 0) {
@@ -237,8 +238,10 @@
         const container = card.querySelector(".dept-container");
         container.innerHTML = "";
 
+        let hasData = false;
         for (const [deptName, staffList] of Object.entries(deptData)) {
             if (staffList.length === 0) continue;
+            hasData = true;
 
             const deptGroup = document.createElement("div");
             deptGroup.className = "dept-group";
@@ -269,7 +272,9 @@
             deptGroup.appendChild(staffListDiv);
             container.appendChild(deptGroup);
         }
-        card.style.display = "block";
+        if (hasData) {
+            card.style.display = "block";
+        }
     }
 
     function toggleDept(el) {
