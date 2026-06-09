@@ -12,7 +12,7 @@
         const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
         // 檢查有沒有填網址
-        if (url === '請貼上您的CSV發布網址') {
+        if (url === 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv') {
             document.getElementById('msg').innerText = '錯誤：您還沒有填入 CSV 網址！';
         } else {
             fetch(url)
