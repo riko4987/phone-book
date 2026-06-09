@@ -19,18 +19,19 @@
 
         Papa.parse(CSV_URL, {
             download: true,
-            header: true,
+            header: false, // 改為 false，代表不讀取標題，直接讀取資料列
             skipEmptyLines: true,
             complete: function(results) {
                 const app = document.getElementById('app');
                 app.innerHTML = '';
                 
-                // 直接讀取整列資料，不管名稱是什麼
-                results.data.forEach(row => {
-                    const values = Object.values(row); // 取得該列所有資料
-                    const col1 = values[0] || '無';    // 第一欄
-                    const col2 = values[1] || '無';    // 第二欄
-                    const col3 = values[2] || '無';    // 第三欄
+                // results.data 變成一個二維陣列
+                results.data.forEach((row, index) => {
+                    // 如果第一行是標題，您可以把 index === 0 這行判斷去掉
+                    // 目前設定直接從第一行開始顯示
+                    const col1 = row[0] || ''; // 第 1 欄
+                    const col2 = row[1] || ''; // 第 2 欄
+                    const col3 = row[2] || ''; // 第 3 欄
                     
                     app.innerHTML += `<div class="row">
                         <span>${col1}</span> 
@@ -38,6 +39,9 @@
                         <span class="data">${col3}</span>
                     </div>`;
                 });
+            },
+            error: function(err) {
+                document.getElementById('app').innerText = '讀取失敗: ' + err.message;
             }
         });
     </script>
