@@ -6,55 +6,39 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         body { font-family: sans-serif; padding: 20px; }
-        .card { border: 1px solid #ddd; margin-bottom: 20px; padding: 10px; border-radius: 5px; }
-        .dept-title { font-weight: bold; background: #333; color: white; padding: 5px; }
-        .row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; }
+        .row { border-bottom: 1px solid #ddd; padding: 10px 0; display: flex; justify-content: space-between; }
+        .dept { font-weight: bold; color: #555; }
     </style>
 </head>
 <body>
 
-<input type="text" id="search" placeholder="搜尋..." style="width: 100%; padding: 10px;">
-<div id="app">資料載入中...</div>
+    <div id="app">資料載入中...</div>
 
-<script>
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
+    <script>
+        // 【關鍵】請把您剛剛取得的 CSV 發布連結貼在這裡
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
-    Papa.parse(CSV_URL, {
-        download: true,
-        header: false,
-        skipEmptyLines: true,
-        complete: function(results) {
-            const data = results.data;
-            const app = document.getElementById('app');
+        Papa.parse(CSV_URL, {
+            download: true,
+            header: false, // 強制不讀取標題，直接讀取原始資料
+            skipEmptyLines: true,
+            complete: function(results) {
+                const app = document.getElementById('app');
+                app.innerHTML = ''; // 清空載入中字樣
 
-            function render(query = '') {
-                app.innerHTML = '';
-                const groups = {};
-                
-                data.forEach(row => {
-                    const ext = row[0] || '';
-                    const dept = row[1] || '未分類';
-                    const name = row[2] || '';
-                    
-                    if (query && !(ext.includes(query) || dept.includes(query) || name.includes(query))) return;
-                    
-                    if (!groups[dept]) groups[dept] = [];
-                    groups[dept].push({ ext, name });
-                });
-
-                for (const dept in groups) {
+                // 每一行資料 row[0]是分機, row[1]是部門, row[2]是姓名
+                results.data.forEach(row => {
                     const div = document.createElement('div');
-                    div.className = 'card';
-                    div.innerHTML = `<div class="dept-title">${dept}</div>` + 
-                        groups[dept].map(item => `<div class="row"><span>${item.name}</span><span>${item.ext}</span></div>`).join('');
+                    div.className = 'row';
+                    div.innerHTML = `
+                        <span>${row[2] || ''}</span>
+                        <span class="dept">${row[1] || ''}</span>
+                        <span>${row[0] || ''}</span>
+                    `;
                     app.appendChild(div);
-                }
+                });
             }
-
-            render();
-            document.getElementById('search').addEventListener('input', (e) => render(e.target.value));
-        }
-    });
-</script>
+        });
+    </script>
 </body>
 </html>
