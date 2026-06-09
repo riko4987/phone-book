@@ -1,20 +1,24 @@
 <!DOCTYPE html>
 <html>
 <body>
-    <div id="debug">正在讀取...</div>
+    <h2 id="status">正在測試連線...</h2>
+    <pre id="data-output"></pre>
+
     <script>
-        // 這裡填入您確認過的 GAS 網址
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwfmL7IA3nZ_jU-wjtSc1XbYIuaqmjEadhwMDSOZf--a_3gYbo9tbhFODp4Bm-w9etcoA/exec';
+        // 換上您剛剛確認過能跑出資料的那個新網址
+        const API_URL = 'https://script.google.com/macros/s/AKfycbx3SAd5TzYcSs6m7Dv62ENK-KJadbgbbnlMhCj6jpVeym_yEGPQKlv7Noox2BkBxYBfAw/exec';
 
         fetch(API_URL)
-            .then(res => res.text()) // 先抓純文字，不要轉 JSON
-            .then(text => {
-                // 直接把抓到的內容丟到螢幕上，這樣您就知道到底是發生什麼事了
-                document.getElementById('debug').innerText = '抓到的內容是：' + text;
-                console.log(text);
+            .then(res => {
+                if (!res.ok) throw new Error('網頁回傳錯誤，狀態碼：' + res.status);
+                return res.json();
+            })
+            .then(data => {
+                document.getElementById('status').innerText = '連線成功！資料已抓取。';
+                document.getElementById('data-output').innerText = JSON.stringify(data, null, 2);
             })
             .catch(err => {
-                document.getElementById('debug').innerText = '錯誤：' + err;
+                document.getElementById('status').innerText = '連線失敗：' + err.message;
             });
     </script>
 </body>
