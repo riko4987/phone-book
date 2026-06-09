@@ -1,69 +1,12 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <title>公司通訊錄</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <style>
-        body { font-family: sans-serif; background: #f4f4f4; padding: 10px; }
-        .card { background: white; margin: 10px 0; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .row { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 5px 0; }
-        input { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; }
-        .dept-title { font-weight: bold; color: #555; margin-bottom: 5px; font-size: 0.9em; }
-    </style>
-</head>
-<body>
-
-<input type="text" id="search" placeholder="搜尋分機、部門或姓名...">
-<div id="app">資料載入中...</div>
-
-<script>
-    // 請將網址填入下方
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
-
-    Papa.parse(CSV_URL, {
-        download: true,
-        header: false, // 關鍵：強制不使用標題列
-        skipEmptyLines: true,
-        complete: function(results) {
-            const data = results.data;
-            const app = document.getElementById('app');
-            
-            function render(filterText = '') {
-                app.innerHTML = '';
-                data.forEach(row => {
-                    // row[0] = 分機, row[1] = 部門, row[2] = 姓名
-                    const ext = row[0] || '';
-                    const dept = row[1] || '';
-                    const name = row[2] || '';
-                    
-                    // 搜尋邏輯
-                    if (filterText && !(ext.includes(filterText) || dept.includes(filterText) || name.includes(filterText))) {
-                        return;
-                    }
-
-                    const div = document.createElement('div');
-                    div.className = 'card';
-                    div.innerHTML = `
-                        <div class="dept-title">${dept}</div>
-                        <div class="row">
-                            <span>${name}</span>
-                            <span>${ext}</span>
-                        </div>
-                    `;
-                    app.appendChild(div);
-                });
-            }
-
-            // 初始化渲染
-            render();
-
-            // 搜尋監聽
-            document.getElementById('search').addEventListener('input', (e) => {
-                render(e.target.value);
-            });
-        }
-    });
-</script>
-</body>
-</html>
+// 核心讀取邏輯：不讀取 Header，直接讀取陣列位置
+Papa.parse(CSV_URL, {
+    download: true,
+    header: false, // 關鍵：強制不依賴標題列
+    skipEmptyLines: true,
+    complete: function(results) {
+        // data[i][0] 就是分機
+        // data[i][1] 就是部門
+        // data[i][2] 就是姓名
+        // ...以此類推
+    }
+});
