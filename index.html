@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>企業全體組織通訊錄 - 完整資料視覺化版</title>
+    <title>力科集團分機表 - 即時動態校正版</title>
     <style>
         :root { 
             --yj: #e91e63; --yj-bg: #fff0f3; 
@@ -40,140 +40,130 @@
         .staff-item:hover { background-color: rgba(0,0,0,0.05); color: #d32f2f; font-weight: bold; }
         .ext-num { font-family: "Consolas", monospace; color: #555; }
 
+        /* 大頭照懸浮特效 */
         .photo-pop {
             display: none; position: absolute; left: 105%; top: 50%; transform: translateY(-50%);
             width: 320px; background: white; border: 2px solid #ccc; box-shadow: 10px 10px 30px rgba(0,0,0,0.3); 
             z-index: 9999; padding: 12px; border-radius: 12px; pointer-events: none;
         }
-
         .fac-card .photo-pop { left: auto; right: 105%; box-shadow: -10px 10px 30px rgba(0,0,0,0.3); }
-
         .yj-card .photo-pop { border-color: var(--yj); }
         .lk-card .photo-pop { border-color: var(--lk); }
         .fac-card .photo-pop { border-color: var(--fac); }
         .photo-pop img { width: 300px; height: 300px; object-fit: cover; border-radius: 8px; }
         .staff-item:hover .photo-pop { display: block; }
+
+        .loading { text-align: center; padding: 30px; color: #666; font-size: 1.1em; width: 100%; }
     </style>
 </head>
 <body>
 
 <h1 class="main-title">企業全體組織通訊錄</h1>
-<div class="update-info">更新日期：2026-06-09</div>
+<div class="update-info" id="sync-time">正在從試算表即時同步最新資料...</div>
 
-<div class="container">
-    <div class="company-card yj-card">
-        <div class="comp-header bg-yj">永鉅電機 (簡碼 88)</div>
-        <div class="dept-container">
-            <div class="dept-group">
-                <div class="dept-title">會議室 (A8/A9) <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>會議室</span><span class="ext-num">8335/8330</span></div>
-                    <div class="staff-item"><span>會客室</span><span class="ext-num">8339</span></div>
-                </div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title">國貿部 (A7) <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>蘇聖閔</span><span class="ext-num">8243</span><div class="photo-pop"><img src="images/蘇聖閔_國貿部.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>戴淑敏</span><span class="ext-num">8245</span><div class="photo-pop"><img src="images/戴淑敏_國貿部.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title">RiKO業務 / 技術 / 業助 (A7) <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>林志豪</span><span class="ext-num">8235</span><div class="photo-pop"><img src="images/林志豪_RiKO業務.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>張富宸</span><span class="ext-num">8236</span><div class="photo-pop"><img src="images/張富宸_RiKO業務.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>陳正崴</span><span class="ext-num">8237</span><div class="photo-pop"><img src="images/陳正崴_RiKO業務.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title">倉庫 / 櫃台 (A1) <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>徐宜君</span><span class="ext-num">8241</span><div class="photo-pop"><img src="images/徐宜君_櫃台.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title">Power技術 / 業務 (A7) <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>徐俊國</span><span class="ext-num">8266</span><div class="photo-pop"><img src="images/徐俊國_Power技術.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>王治喬</span><span class="ext-num">8299</span><div class="photo-pop"><img src="images/王治喬_Power技術.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>張令璜</span><span class="ext-num">8257</span><div class="photo-pop"><img src="images/張令璜_Power業務.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>江金育</span><span class="ext-num">8288</span><div class="photo-pop"><img src="images/江金育_Power業務.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title">財會 / 人事 (A8) <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>陳沈宏</span><span class="ext-num">8272</span><div class="photo-pop"><img src="images/陳沈宏_財會人事.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>黃美媖</span><span class="ext-num">8250</span><div class="photo-pop"><img src="images/黃美媖_財會人事.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>李倩慧</span><span class="ext-num">8331</span><div class="photo-pop"><img src="images/李倩慧_財會人事.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>陳秋錦</span><span class="ext-num">8206</span><div class="photo-pop"><img src="images/陳秋錦_財會人事.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>林美君</span><span class="ext-num">8332</span><div class="photo-pop"><img src="images/林美君_財會人事.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>李美蓉</span><span class="ext-num">8336</span><div class="photo-pop"><img src="images/李美蓉_財會人事.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title">中區 / 南區業務 <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>黃喬微 (中區)</span><span class="ext-num">898</span><div class="photo-pop"><img src="images/黃喬微_中區業務.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>許秀惠 (中區)</span><span class="ext-num">897</span><div class="photo-pop"><img src="images/許秀惠_中區業務.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>吳斐靜 (中區)</span><span class="ext-num">896</span><div class="photo-pop"><img src="images/吳斐靜_中區業務.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="container" id="address-book-container">
+    <div class="loading">資料載入中，請稍候...</div>
+</div>
 
-    <div class="company-card lk-card">
-        <div class="comp-header bg-lk">力科光電 (簡碼 66)</div>
-        <div class="dept-container">
-            <div class="dept-group">
-                <div class="dept-title">總經理室 (A1) <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>陳宏澤</span><span class="ext-num">6212</span><div class="photo-pop"><img src="images/陳宏澤_總經理室.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title">機構課 / 技轉課 / 實驗室 (A10) <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>王瑞琪</span><span class="ext-num">8277</span><div class="photo-pop"><img src="images/王瑞琪_機構課.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>胡家綺</span><span class="ext-num">8372</span><div class="photo-pop"><img src="images/胡家綺_技轉課.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>駱建璋</span><span class="ext-num">6287/6364</span><div class="photo-pop"><img src="images/駱建璋_實驗室.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title">視覺 / 光電 / PM / DALI (A11) <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>侯佳妘 (DALI)</span><span class="ext-num">6272</span><div class="photo-pop"><img src="images/侯佳妘_DALI小組.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>裴氏金鸞 (DALI)</span><span class="ext-num">6272</span><div class="photo-pop"><img src="images/裴氏金鸞_DALI小組.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>楊嘉銘 (光電)</span><span class="ext-num">6277</span><div class="photo-pop"><img src="images/楊嘉銘_光電小組.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>王照盛 (光電)</span><span class="ext-num">6277</span><div class="photo-pop"><img src="images/王照盛_光電小組.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>蔡英杰 (PM)</span><span class="ext-num">6323</span><div class="photo-pop"><img src="images/蔡英杰_PM.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>花晨榮 (視覺)</span><span class="ext-num">6365</span><div class="photo-pop"><img src="images/花晨榮_視覺小組.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title">管理 / 總務 / 威力科 / 資管 <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>吳胤輝 (資管)</span><span class="ext-num">6354</span><div class="photo-pop"><img src="images/吳胤輝_資管.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>鍾淑如 (管理部)</span><span class="ext-num">6364</span><div class="photo-pop"><img src="images/鍾淑如_管理部.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title">美編部門 <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>黃書慧</span><span class="ext-num">6306</span><div class="photo-pop"><img src="images/黃書慧_美編.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>程献中</span><span class="ext-num">6334</span><div class="photo-pop"><img src="images/程献中_美編.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>李沛彤</span><span class="ext-num">6307</span><div class="photo-pop"><img src="images/李沛彤_美編.png" onerror="this.parentElement.style.display='none';"></div></div>
-                    <div class="staff-item"><span>王志豪</span><span class="ext-num">6334</span><div class="photo-pop"><img src="images/王志豪_美編.png" onerror="this.parentElement.style.display='none';"></div></div>
-                </div>
-            </div>
-        </div>
-    </div>
+<script>
+    // 1. 請在此處填入您 Google 試算表「發布為 CSV」的網路網址
+    const csvUrl = 'YOUR_GOOGLE_SHEET_CSV_URL';
 
-    <div class="company-card fac-card">
-        <div class="comp-header bg-fac">力科工廠 (簡碼 33)</div>
-        <div class="dept-container">
-            <div class="dept-group">
-                <div class="dept-title">1F 包射、品保 <span>[+]</span></div>
-                <div class="staff-list">
-                    <div class="staff-item"><span>陳金英 (包射區)</span><span class="ext-num">218</span><div class="photo-pop"><img src="images/陳金英_包射區.png" onerror="this.parentElement.style.display='none';"></div>
+    // 2. 定義系統三大核心分类與其顏色樣式（對應您的原始設計）
+    const targetCompanies = [
+        { key: '永鉅電機', name: '永鉅電機 (簡碼 88)', cardClass: 'yj-card', headerClass: 'bg-yj' },
+        { key: '力科光電', name: '力科光電 (簡碼 66)', cardClass: 'lk-card', headerClass: 'bg-lk' },
+        { key: '力科工廠', name: '力科工廠 (簡碼 33)', cardClass: 'fac-card', headerClass: 'bg-fac' }
+    ];
+
+    // 3. 當網頁開啟時，自動抓取 CSV
+    window.addEventListener('DOMContentLoaded', () => {
+        fetch(csvUrl)
+            .then(response => response.text())
+            .then(csvData => {
+                const parsedData = parseCSV(csvData);
+                renderAddressBook(parsedData);
+                
+                // 顯示目前同步成功的時間
+                const now = new Date();
+                document.getElementById('sync-time').innerText = `雲端即時同步成功！更新時間：${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('sync-time').innerText = '資料抓取失敗，請確認雲端試算表發布設定是否正確。';
+            });
+    });
+
+    // 簡易不依賴套件的 CSV 解析器
+    function parseCSV(text) {
+        const lines = text.split(/\r\n|\n/);
+        const result = [];
+        if (lines.length === 0) return result;
+        
+        // 讀取第一列作為標題欄位
+        const headers = splitCSVLine(lines[0]);
+        
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
+            const cols = splitCSVLine(lines[i]);
+            const rowObj = {};
+            headers.forEach((header, index) => {
+                rowObj[header.trim()] = cols[index] ? cols[index].trim() : '';
+            });
+            result.push(rowObj);
+        }
+        return result;
+    }
+
+    function splitCSVLine(line) {
+        const result = [];
+        let insideQuote = false;
+        let entry = '';
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') {
+                insideQuote = !insideQuote;
+            } else if (char === ',' && !insideQuote) {
+                result.push(entry);
+                entry = '';
+            } else {
+                entry += char;
+            }
+        }
+        result.push(entry);
+        return result;
+    }
+
+    // 4. 動態生成網頁元件（保證第一版原汁原味結構，絕不隨便亂拆或自作聰明分類）
+    function renderAddressBook(data) {
+        const container = document.getElementById('address-book-container');
+        container.innerHTML = ''; // 清空載入中字樣
+
+        targetCompanies.forEach(comp => {
+            // 篩選出屬於該大公司的行數
+            const compRows = data.filter(row => row['公司分類'] === comp.key);
+            if (compRows.length === 0) return;
+
+            // 依據原始的「部門分類」進行群組化
+            const deptMap = new Map();
+            compRows.forEach(row => {
+                const deptName = row['部門分類'] || '其他';
+                if (!deptMap.has(deptName)) {
+                    deptMap.set(deptName, []);
+                }
+                deptMap.get(deptName).push(row);
+            });
+
+            // 創建卡片外殼
+            const card = document.createElement('div');
+            card.className = `company-card ${comp.cardClass}`;
+
+            // 卡片標頭
+            const header = document.createElement('div');
+            header.className = `comp-header ${comp.headerClass}`;
+            header.innerText = comp.name;
+            card.appendChild(header);
+
+            // 部門容器
+            const deptContainer = document.createElement('div');
+            deptContainer.className = 'dept-container';
