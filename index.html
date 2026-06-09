@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>企業全體組織通訊錄 - 完整資料視覺化版</title>
+    <title>企業全體組織通訊錄 - 雲端同步完美版</title>
     <style>
         :root { 
             --yj: #e91e63; --yj-bg: #fff0f3; 
@@ -15,7 +15,7 @@
         .update-info { text-align: center; color: #888; font-size: 0.85em; margin-bottom: 25px; }
         .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
         
-        .company-card { background: white; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; margin-bottom: 20px; overflow: visible; display: none; }
+        .company-card { background: white; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; margin-bottom: 20px; overflow: visible; }
         .comp-header { padding: 15px; color: white; text-align: center; font-weight: bold; font-size: 1.25em; border-radius: 12px 12px 0 0; }
         
         .bg-yj { background-color: var(--yj); }
@@ -55,16 +55,12 @@
         .fac-card .photo-pop { border-color: var(--fac); }
         .photo-pop img { width: 300px; height: 300px; object-fit: cover; border-radius: 8px; }
         .staff-item:hover .photo-pop { display: block; }
-        
-        .loading { text-align: center; font-size: 1.2em; color: #666; margin-top: 50px; }
     </style>
 </head>
 <body>
 
 <h1 class="main-title">企業全體組織通訊錄</h1>
-<div id="update-date" class="update-info">更新日期：同步連線中...</div>
-
-<div id="loading-text" class="loading">🔄 正在從雲端同步最新人員名單，請稍候...</div>
+<div id="update-date" class="update-info">更新日期：2026-05-29</div>
 
 <div class="container">
     <div id="company-88" class="company-card yj-card">
@@ -134,51 +130,37 @@
             parseAndRender(csvText);
         } catch (error) {
             console.error("無法讀取雲端資料:", error);
-            document.getElementById("loading-text").innerText = "❌ 讀取雲端資料失敗，請確認試算表發佈設定是否正確。";
         }
     }
 
     function parseAndRender(csvText) {
-        // 使用正則拆分行，完全過濾抹除 \r 換行符號帶來的惡性干擾
+        // 使用正則表達式完美切開並清除 \r 隱形換行干擾
         const rows = csvText.split(/\r?\n/).map(row => row.split(",").map(cell => cell.trim()));
         
-        let updateDate = "2026-05-29"; 
         if (rows[0] && rows[0].length > 0) {
             const lastCell = rows[0][rows[0].length - 1];
             if (lastCell && lastCell.match(/\d{4}/)) {
-                updateDate = lastCell;
+                document.getElementById("update-date").innerText = "更新日期：" + lastCell;
             }
         }
-        document.getElementById("update-date").innerText = "更新日期：" + updateDate;
 
+        // 強制回歸您最完美的固定 V1 部門對應表
         const dataMap = {
             "88": {
-                "會議室 (A8/A9)": [],
-                "國貿部 (A7)": [],
-                "RiKO業務 / 技術 / 業助 (A7)": [],
-                "倉庫 / 櫃台 (A1)": [],
-                "Power技術 / 業務 (A7)": [],
-                "財會 / 人事 (A8)": [],
-                "中區 / 南區業務": []
+                "會議室 (A8/A9)": [], "國貿部 (A7)": [], "RiKO業務 / 技術 / 業助 (A7)": [],
+                "倉庫 / 櫃台 (A1)": [], "Power技術 / 業務 (A7)": [], "財會 / 人事 (A8)": [], "中區 / 南區業務": []
             },
             "66": {
-                "總經理室 (A1)": [],
-                "機構課 / 技轉課 / 實驗室 (A10)": [],
-                "視覺 / 光電 / PM / DALI (A11)": [],
-                "管理 / 總務 / 威力科 / 資管": [],
-                "美編 / 門市 (A8/77)": []
+                "總經理室 (A1)": [], "機構課 / 技轉課 / 實驗室 (A10)": [], "視覺 / 光電 / PM / DALI (A11)": [],
+                "管理 / 總務 / 威力科 / 資管": [], "美編 / 門市 (A8/77)": []
             },
             "33": {
-                "1F 包射、品保": [],
-                "2F 力科倉": [],
-                "3F 光纖產線": [],
-                "4F 自動化產線 / 電子產線": [],
-                "5F 電子自動化課": [],
-                "6F 管理、資材課 / 品保課": [],
-                "7F 會議室、實驗室": []
+                "1F 包射、品保": [], "2F 力科倉": [], "3F 光纖產線": [],
+                "4F 自動化產線 / 電子產線": [], "5F 電子自動化課": [], "6F 管理、資材課 / 品保課": [], "7F 會議室、實驗室": []
             }
         };
 
+        // 這次完全不猜測，精準採用試算表行指標
         let currentDept88_left = "會議室 (A8/A9)";
         let currentDept88_mid = "國貿部 (A7)";
         let currentDept88_right = "RiKO業務 / 技術 / 業助 (A7)";
@@ -189,8 +171,9 @@
 
         for (let i = 8; i < rows.length; i++) {
             const r = rows[i];
-            if (!r || r.length < 2) continue;
+            if (!r) continue;
 
+            // 根據試算表左、中、右大格子的特徵變換子部門指標
             if (r[0] && r[0].includes("倉庫")) currentDept88_left = "倉庫 / 櫃台 (A1)";
             if (r[0] && r[0].includes("中區")) currentDept88_left = "中區 / 南區業務";
             if (r[3] && r[3].includes("Power技術")) currentDept88_mid = "Power技術 / 業務 (A7)";
@@ -206,28 +189,25 @@
             if (r[18] && r[18].includes("6F")) currentDept33 = "6F 管理、資材課 / 品保課";
             if (r[18] && r[18].includes("7F")) currentDept33 = "7F 會議室、實驗室";
 
-            pushStaff(dataMap["88"], currentDept88_left, r[0], r[1]);
-            pushStaff(dataMap["88"], currentDept88_mid, r[3], r[4]);
-            pushStaff(dataMap["88"], currentDept88_right, r[6], r[7]);
+            // 只要不是標題行，就直接塞入資料
+            if (r[0] && !r[0].includes("會議室") && !r[0].includes("倉庫") && !r[0].includes("中區")) pushStaff(dataMap["88"], currentDept88_left, r[0], r[1]);
+            if (r[3] && !r[3].includes("國貿") && !r[3].includes("Power")) pushStaff(dataMap["88"], currentDept88_mid, r[3], r[4]);
+            if (r[6] && !r[6].includes("RiKO") && !r[6].includes("財會")) pushStaff(dataMap["88"], currentDept88_right, r[6], r[7]);
             
-            pushStaff(dataMap["66"], currentDept66_left, r[9], r[10]);
-            pushStaff(dataMap["66"], currentDept66_mid, r[12], r[13]);
-            pushStaff(dataMap["66"], currentDept66_right, r[14], r[15]);
+            if (r[9] && !r[9].includes("總經理") && !r[9].includes("管理") && !r[9].includes("美編")) pushStaff(dataMap["66"], currentDept66_left, r[9], r[10]);
+            if (r[12] && !r[12].includes("機構")) pushStaff(dataMap["66"], currentDept66_mid, r[12], r[13]);
+            if (r[14] && !r[14].includes("視覺")) pushStaff(dataMap["66"], currentDept66_right, r[14], r[15]);
             
-            pushStaff(dataMap["33"], currentDept33, r[18], r[19]);
+            if (r[18] && !r[18].match(/^\d+F/)) pushStaff(dataMap["33"], currentDept33, r[18], r[19]);
         }
 
         renderCompany("88", dataMap["88"]);
         renderCompany("66", dataMap["66"]);
         renderCompany("33", dataMap["33"]);
-
-        document.getElementById("loading-text").style.display = "none";
     }
 
     function pushStaff(compMap, deptName, name, ext) {
         if (!name && !ext) return;
-        if (name && (name.includes("會議室") || name.includes("倉庫") || name.includes("中區") || name.includes("Power") || name.includes("RiKO") || name.includes("財會") || name.includes("總經理") || name.includes("管理") || name.includes("美編") || name.includes("機構") || name.includes("技轉") || name.includes("實驗室") || name.includes("視覺") || name.includes("光電") || name.includes("DALI") || name.includes("PM") || name.includes("產線") || name.includes("品保") || name.match(/^\d+F/))) return;
-        
         if (compMap[deptName]) {
             compMap[deptName].push({ name: name || "", ext: ext || "" });
         }
@@ -238,10 +218,8 @@
         const container = card.querySelector(".dept-container");
         container.innerHTML = "";
 
-        let hasData = false;
         for (const [deptName, staffList] of Object.entries(deptData)) {
             if (staffList.length === 0) continue;
-            hasData = true;
 
             const deptGroup = document.createElement("div");
             deptGroup.className = "dept-group";
@@ -271,9 +249,6 @@
             deptGroup.appendChild(deptTitle);
             deptGroup.appendChild(staffListDiv);
             container.appendChild(deptGroup);
-        }
-        if (hasData) {
-            card.style.display = "block";
         }
     }
 
