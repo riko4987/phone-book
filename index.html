@@ -1,38 +1,27 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>企業組織通訊錄</title>
-    </head>
+</head>
 <body>
-    <div id="container"></div>
+    <div id="container">讀取中...</div>
 
     <script>
-        // 【重要】請填入您剛部署好的 Google Apps Script 網址
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxV261aqf3tCiSy10nBqAe50lGuE-BvRB5pSymq1kWFZ7WzJPoEaWfWNnWMWXmgKT658g/exec';
+        // 【關鍵】請把這裡替換成您剛剛複製的 /exec 網址
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyCxu9ywYVKBB7F_19ZIQ8QeWHYJvn8ElYEMSDOnfD3VTRYbDTT2ruzI4VvGqAkULvxSQ/exec';
 
-        async function loadData() {
-            try {
-                const response = await fetch(API_URL);
-                const data = await response.json(); // 拿到二維陣列資料
-                render(data);
-            } catch (err) {
-                document.getElementById('container').innerHTML = '讀取失敗，請確認部署設定。';
-            }
-        }
-
-        function render(rows) {
-            const container = document.getElementById('container');
-            container.innerHTML = '';
-            // rows[0] 是標題，從 rows[1] 開始渲染
-            // rows[i][0] 為公司, rows[i][1] 為部門, rows[i][2] 為姓名, rows[i][3] 為分機
-            // 請依據您試算表的實際欄位順序修改下方的索引 [0], [1]...
-            
-            // (此處放入您原本的 render 邏輯，直接用 rows[i][0] 這種方式存取資料)
-            console.log(rows); // 按 F12 可在控制台看到資料結構，確保對應正確
-        }
-
-        loadData();
+        fetch(API_URL)
+            .then(res => res.json())
+            .then(data => {
+                // data[0] 是標題行，data[1] 之後才是資料
+                // data[i][0]=公司, [1]=部門, [2]=姓名, [3]=分機
+                document.getElementById('container').innerHTML = '讀取成功！總筆數：' + (data.length - 1);
+                console.log(data); // 按 F12 查看資料是否已經載入
+            })
+            .catch(err => {
+                document.getElementById('container').innerHTML = '連線錯誤：' + err;
+            });
     </script>
 </body>
 </html>
