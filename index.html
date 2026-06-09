@@ -2,76 +2,44 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>公司組織通訊錄</title>
+    <title>通訊錄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Microsoft JhengHei, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: auto; }
-        .search-box { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; }
-        .dept-header { background: #2c3e50; color: white; padding: 15px; font-weight: bold; }
-        .row { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #eee; }
-        .name { font-weight: 600; }
-        .ext { color: #007bff; font-weight: bold; }
+        body { font-family: sans-serif; padding: 20px; }
+        .row { border-bottom: 1px solid #ccc; padding: 10px; display: flex; justify-content: space-between; }
+        .data { font-weight: bold; }
     </style>
 </head>
 <body>
+    <div id="app">正在讀取...</div>
 
-<div class="container">
-    <h2>公司組織通訊錄</h2>
-    <input type="text" id="search" class="search-box" placeholder="搜尋姓名或分機...">
-    <div id="app">正在載入資料...</div>
-</div>
+    <script>
+        // 【請貼上您的 CSV 網址】
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
-<script>
-    // 【請貼上您的 CSV 發布網址】
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
-
-    let rawData = [];
-
-    function render(data) {
-        const app = document.getElementById('app');
-        app.innerHTML = '';
-        
-        const grouped = data.reduce((acc, row) => {
-            const dept = row['部門'] || '未分類';
-            if (!acc[dept]) acc[dept] = [];
-            acc[dept].push(row);
-            return acc;
-        }, {});
-
-        for (const dept in grouped) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `<div class="dept-header">${dept}</div>`;
-            grouped[dept].forEach(p => {
-                card.innerHTML += `<div class="row">
-                    <span class="name">${p['姓名'] || '無名'}</span>
-                    <span class="ext">${p['分機'] || '-'}</span>
-                </div>`;
-            });
-            app.appendChild(card);
-        }
-    }
-
-    // 初始化與搜尋功能
-    Papa.parse(CSV_URL, {
-        download: true, header: true, skipEmptyLines: true,
-        complete: (results) => {
-            rawData = results.data;
-            render(rawData);
-            
-            document.getElementById('search').oninput = (e) => {
-                const val = e.target.value.toLowerCase();
-                const filtered = rawData.filter(i => 
-                    (i['姓名']||'').toLowerCase().includes(val) || 
-                    (i['分機']||'').toLowerCase().includes(val)
-                );
-                render(filtered);
-            };
-        }
-    });
-</script>
+        Papa.parse(CSV_URL, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                const app = document.getElementById('app');
+                app.innerHTML = '';
+                
+                // 直接讀取整列資料，不管名稱是什麼
+                results.data.forEach(row => {
+                    const values = Object.values(row); // 取得該列所有資料
+                    const col1 = values[0] || '無';    // 第一欄
+                    const col2 = values[1] || '無';    // 第二欄
+                    const col3 = values[2] || '無';    // 第三欄
+                    
+                    app.innerHTML += `<div class="row">
+                        <span>${col1}</span> 
+                        <span>${col2}</span> 
+                        <span class="data">${col3}</span>
+                    </div>`;
+                });
+            }
+        });
+    </script>
 </body>
 </html>
