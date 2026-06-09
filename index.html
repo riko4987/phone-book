@@ -5,40 +5,61 @@
     <title>公司通訊錄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        .row { border-bottom: 1px solid #ddd; padding: 10px 0; display: flex; justify-content: space-between; }
-        .dept { font-weight: bold; color: #555; }
+        body { font-family: 'Microsoft JhengHei', sans-serif; background-color: #f4f4f9; padding: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; }
+        .dept-title { background: #333; color: white; padding: 10px 15px; font-weight: bold; font-size: 1.1em; }
+        .row { padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .row:last-child { border-bottom: none; }
+        .name { font-weight: bold; color: #333; }
+        .ext { color: #007bff; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="app">資料載入中...</div>
+<div class="container" id="app">資料載入中，請稍候...</div>
 
-    <script>
-        // 【關鍵】請把您剛剛取得的 CSV 發布連結貼在這裡
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
+<script>
+    // 這裡放入您的 Google CSV 發布連結
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
-        Papa.parse(CSV_URL, {
-            download: true,
-            header: false, // 強制不讀取標題，直接讀取原始資料
-            skipEmptyLines: true,
-            complete: function(results) {
-                const app = document.getElementById('app');
-                app.innerHTML = ''; // 清空載入中字樣
+    Papa.parse(CSV_URL, {
+        download: true,
+        header: false, // 關鍵：不依賴標題，避免資料跑掉
+        skipEmptyLines: true,
+        complete: function(results) {
+            const data = results.data;
+            const app = document.getElementById('app');
+            app.innerHTML = ''; // 清除 loading 字樣
 
-                // 每一行資料 row[0]是分機, row[1]是部門, row[2]是姓名
-                results.data.forEach(row => {
-                    const div = document.createElement('div');
-                    div.className = 'row';
-                    div.innerHTML = `
-                        <span>${row[2] || ''}</span>
-                        <span class="dept">${row[1] || ''}</span>
-                        <span>${row[0] || ''}</span>
-                    `;
-                    app.appendChild(div);
+            // 資料群組化：假設 B欄 是部門 (索引1)
+            const groups = {};
+            data.forEach((row, index) => {
+                if (index === 0) return; // 跳過標題列
+                const ext = row[0] || '';   // A欄：分機
+                const dept = row[1] || '未分類'; // B欄：部門
+                const name = row[2] || '';   // C欄：姓名/位置
+                
+                if (!groups[dept]) groups[dept] = [];
+                groups[dept].push({ ext, name });
+            });
+
+            // 渲染畫面
+            for (const dept in groups) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `<div class="dept-title">${dept}</div>`;
+                
+                groups[dept].forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'row';
+                    row.innerHTML = `<span class="name">${item.name}</span><span class="ext">${item.ext}</span>`;
+                    card.appendChild(row);
                 });
+                app.appendChild(card);
             }
-        });
-    </script>
+        }
+    });
+</script>
 </body>
 </html>
