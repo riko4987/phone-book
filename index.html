@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>企業全體組織通訊錄 - 雲端即時同步版</title>
+    <title>企業全體組織通訊錄 - 完整資料視覺化版</title>
     <style>
         :root { 
             --yj: #e91e63; --yj-bg: #fff0f3; 
@@ -10,15 +10,14 @@
             --fac: #fbc02d; --fac-bg: #fff9e6; 
         }
         
-        *, *::before, *::after { box-sizing: border-box; }
-
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
         .main-title { text-align: center; color: #333; font-weight: bold; margin-bottom: 5px; }
-        .update-info { text-align: center; color: #d32f2f; font-size: 0.9em; margin-bottom: 25px; font-weight: bold; }
+        .update-info { text-align: center; color: #888; font-size: 0.85em; margin-bottom: 25px; }
         .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
         
         .company-card { background: white; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; margin-bottom: 20px; overflow: visible; display: none; }
         .comp-header { padding: 15px; color: white; text-align: center; font-weight: bold; font-size: 1.25em; border-radius: 12px 12px 0 0; }
+        
         .bg-yj { background-color: var(--yj); }
         .bg-lk { background-color: var(--lk); }
         .bg-fac { background-color: var(--fac); color: #333; }
@@ -63,9 +62,9 @@
 <body>
 
 <h1 class="main-title">企業全體組織通訊錄</h1>
-<div id="update-date" class="update-info">正在連線雲端試算表同步最新分機資料...</div>
+<div id="update-date" class="update-info">更新日期：同步連線中...</div>
 
-<div id="loading-text" class="loading">🔄 正在載入最新企業通訊錄，請稍候...</div>
+<div id="loading-text" class="loading">🔄 正在從雲端同步最新人員名單，請稍候...</div>
 
 <div class="container">
     <div id="company-88" class="company-card yj-card">
@@ -85,10 +84,8 @@
 </div>
 
 <script>
-    // 您剛才發佈的 Google Sheets CSV 連結
     const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv";
 
-    // 固定對應的特殊照片部門備註，以精準配對 images 目錄下的圖片名稱
     function getPhotoSuffix(deptName) {
         if (deptName.includes("倉庫")) return "_倉庫";
         if (deptName.includes("櫃台")) return "_櫃台";
@@ -142,87 +139,65 @@
     }
 
     function parseAndRender(csvText) {
-        // 將 CSV 轉換為二維陣列
         const rows = csvText.split("\n").map(row => row.split(",").map(cell => cell.trim()));
         
-        // 抓取更新日期
-        let updateDate = "即時連線同步";
+        let updateDate = "2026-05-29"; 
         if (rows[0] && rows[0].length > 0) {
             const lastCell = rows[0][rows[0].length - 1];
             if (lastCell && lastCell.match(/\d{4}/)) {
                 updateDate = lastCell;
             }
         }
-        document.getElementById("update-date").innerText = "📊 資料同步日期 (Google 雲端即時連線)：" + updateDate;
+        document.getElementById("update-date").innerText = "更新日期：" + updateDate;
 
-        // 定義三大架構
         const dataMap = {
-            "88": {},
-            "66": {},
-            "33": {}
+            "88": {
+                "會議室 (A8/A9)": [],
+                "國貿部 (A7)": [],
+                "RiKO業務 / 技術 / 業助 (A7)": [],
+                "倉庫 / 櫃台 (A1)": [],
+                "Power技術 / 業務 (A7)": [],
+                "財會 / 人事 (A8)": [],
+                "中區 / 南區業務": []
+            },
+            "66": {
+                "總經理室 (A1)": [],
+                "機構課 / 技轉課 / 實驗室 (A10)": [],
+                "視覺 / 光電 / PM / DALI (A11)": [],
+                "管理 / 總務 / 威力科 / 資管": [],
+                "美編 / 門市 (A8/77)": []
+            },
+            "33": {
+                "1F 包射、品保": [],
+                "2F 力科倉": [],
+                "3F 光纖產線": [],
+                "4F 自動化產線 / 電子產線": [],
+                "5F 電子自動化課": [],
+                "6F 管理、資材課 / 品保課": [],
+                "7F 會議室、實驗室": []
+            }
         };
 
-        // 靜態硬編碼原始結構數據（防止試算表標題列位移），確保動態對應完美
-        const structure = [
-            { comp: "88", cols: [0, 1], name: "會議室 (A8/A9)" },
-            { comp: "88", cols: [3, 4], name: "國貿部 (A7)" },
-            { comp: "88", cols: [6, 7], name: "RiKO業務 / 技術 / 業助 (A7)" },
-            { comp: "88", cols: [0, 1], name: "倉庫 / 櫃台 (A1)" },
-            { comp: "88", cols: [3, 4], name: "Power技術 / 業務 (A7)" },
-            { comp: "88", cols: [6, 7], name: "財會 / 人事 (A8)" },
-            { comp: "88", cols: [0, 1], name: "中區 / 南區業務" },
-            
-            { comp: "66", cols: [9, 10], name: "總經理室 (A1)" },
-            { comp: "66", cols: [12, 13], name: "機構課 / 技轉課 / 實驗室 (A10)" },
-            { comp: "66", cols: [15, 16], name: "視覺 / 光電 / PM / DALI (A11)" },
-            { comp: "66", cols: [9, 10], name: "管理 / 總務 / 威力科 / 資管" },
-            { comp: "66", cols: [9, 10], name: "美編 / 門市 (A8/77)" },
-            
-            { comp: "33", cols: [18, 19], name: "1F 包射、品保" },
-            { comp: "33", cols: [18, 19], name: "2F 力科倉" },
-            { comp: "33", cols: [18, 19], name: "3F 光纖產線" },
-            { comp: "33", cols: [18, 19], name: "4F 自動化產線 / 電子產線" },
-            { comp: "33", cols: [18, 19], name: "5F 電子自動化課" },
-            { comp: "33", cols: [18, 19], name: "6F 管理、資材課 / 品保課" },
-            { comp: "33", cols: [18, 19], name: "7F 會議室、實驗室" }
-        ];
-
-        // 初始化結構容器
-        structure.forEach(s => {
-            if (!dataMap[s.comp][s.name]) {
-                dataMap[s.comp][s.name] = [];
-            }
-        });
-
-        // 解析 CSV 內容填入結構 (從第 8 行資料開始掃描)
         let currentDept88_left = "會議室 (A8/A9)";
         let currentDept88_mid = "國貿部 (A7)";
         let currentDept88_right = "RiKO業務 / 技術 / 業助 (A7)";
-        
         let currentDept66_left = "總經理室 (A1)";
         let currentDept66_mid = "機構課 / 技轉課 / 實驗室 (A10)";
         let currentDept66_right = "視覺 / 光電 / PM / DALI (A11)";
-        
         let currentDept33 = "1F 包射、品保";
 
         for (let i = 8; i < rows.length; i++) {
             const r = rows[i];
             if (!r || r.length < 2) continue;
 
-            // 判斷並更新當前部門標題
-            // 88 左
             if (r[0] && r[0].includes("倉庫")) currentDept88_left = "倉庫 / 櫃台 (A1)";
             if (r[0] && r[0].includes("中區")) currentDept88_left = "中區 / 南區業務";
-            // 88 中
             if (r[3] && r[3].includes("Power技術")) currentDept88_mid = "Power技術 / 業務 (A7)";
-            // 88 右
             if (r[6] && r[6].includes("財會")) currentDept88_right = "財會 / 人事 (A8)";
             
-            // 66 左
             if (r[9] && r[9].includes("管理")) currentDept66_left = "管理 / 總務 / 威力科 / 資管";
             if (r[9] && r[9].includes("美編")) currentDept66_left = "美編 / 門市 (A8/77)";
             
-            // 33 
             if (r[18] && r[18].includes("2F")) currentDept33 = "2F 力科倉";
             if (r[18] && r[18].includes("3F")) currentDept33 = "3F 光纖產線";
             if (r[18] && r[18].includes("4F")) currentDept33 = "4F 自動化產線 / 電子產線";
@@ -230,37 +205,26 @@
             if (r[18] && r[18].includes("6F")) currentDept33 = "6F 管理、資材課 / 品保課";
             if (r[18] && r[18].includes("7F")) currentDept33 = "7F 會議室、實驗室";
 
-            // 讀取各欄位人員數據
-            // 88 左
             pushStaff(dataMap["88"], currentDept88_left, r[0], r[1]);
-            // 88 中
             pushStaff(dataMap["88"], currentDept88_mid, r[3], r[4]);
-            // 88 右
             pushStaff(dataMap["88"], currentDept88_right, r[6], r[7]);
             
-            // 66 左
             pushStaff(dataMap["66"], currentDept66_left, r[9], r[10]);
-            // 66 中
             pushStaff(dataMap["66"], currentDept66_mid, r[12], r[13]);
-            // 66 右
             pushStaff(dataMap["66"], currentDept66_right, r[14], r[15]);
             
-            // 33
             pushStaff(dataMap["33"], currentDept33, r[18], r[19]);
         }
 
-        // 清理過濾輔助字元，並渲染至網頁上
         renderCompany("88", dataMap["88"]);
         renderCompany("66", dataMap["66"]);
         renderCompany("33", dataMap["33"]);
 
-        // 移除 Loading 畫面
         document.getElementById("loading-text").style.display = "none";
     }
 
     function pushStaff(compMap, deptName, name, ext) {
         if (!name && !ext) return;
-        // 過濾掉當作標題的字串
         if (name && (name.includes("會議室") || name.includes("倉庫") || name.includes("中區") || name.includes("Power") || name.includes("RiKO") || name.includes("財會") || name.includes("總經理") || name.includes("管理") || name.includes("美編") || name.includes("機構") || name.includes("技轉") || name.includes("實驗室") || name.includes("視覺") || name.includes("光電") || name.includes("DALI") || name.includes("PM") || name.includes("產線") || name.includes("品保") || name.match(/^\d+F/))) return;
         
         if (compMap[deptName]) {
@@ -314,7 +278,6 @@
         el.querySelector('span').innerText = group.classList.contains('expanded') ? '[-]' : '[+]';
     }
 
-    // 啟動載入
     window.onload = fetchExtensionData;
 </script>
 
