@@ -2,28 +2,37 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>企業全體組織通訊錄 - 強制連動版</title>
+    <title>企業組織通訊錄</title>
     </head>
 <body>
-    <h1 class="main-title">企業全體組織通訊錄</h1>
-    <div id="address-book-container">正在連線...</div>
+    <div id="container"></div>
 
     <script>
-        // 【重要】請填入您剛才在 Google Apps Script 部署得到的「網頁應用程式網址」
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxnu4pkxA4oZHQlB1t-QIt560A3lYT8Pd82o_x-VF51YDWC1YgxbwWWGFkFZba_R6SBNg/exec';
+        // 【重要】請填入您剛部署好的 Google Apps Script 網址
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxV261aqf3tCiSy10nBqAe50lGuE-BvRB5pSymq1kWFZ7WzJPoEaWfWNnWMWXmgKT658g/exec';
 
-        fetch(GAS_URL)
-            .then(res => res.json())
-            .then(data => {
-                // data 是個陣列，第 0 行是標題
-                console.log(data); // 您可以在瀏覽器按 F12 看到資料是不是已經進來了
-                render(data); 
-            });
-
-        function render(data) {
-            // 這邊放您原本的渲染邏輯，只是 data 的結構從 CSV 物件變成了陣列
-            // 只要把 data[0] 當標題，從 data[1] 開始渲染即可
+        async function loadData() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json(); // 拿到二維陣列資料
+                render(data);
+            } catch (err) {
+                document.getElementById('container').innerHTML = '讀取失敗，請確認部署設定。';
+            }
         }
+
+        function render(rows) {
+            const container = document.getElementById('container');
+            container.innerHTML = '';
+            // rows[0] 是標題，從 rows[1] 開始渲染
+            // rows[i][0] 為公司, rows[i][1] 為部門, rows[i][2] 為姓名, rows[i][3] 為分機
+            // 請依據您試算表的實際欄位順序修改下方的索引 [0], [1]...
+            
+            // (此處放入您原本的 render 邏輯，直接用 rows[i][0] 這種方式存取資料)
+            console.log(rows); // 按 F12 可在控制台看到資料結構，確保對應正確
+        }
+
+        loadData();
     </script>
 </body>
 </html>
