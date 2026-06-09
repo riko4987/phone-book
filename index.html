@@ -2,75 +2,68 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>企業組織通訊錄</title>
+    <title>公司組織通訊錄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; }
         .container { max-width: 600px; margin: auto; }
-        .card { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .header { background: #333; color: white; padding: 15px; border-radius: 8px 8px 0 0; font-weight: bold; }
-        .dept { background: #f9f9f9; padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; }
-        .staff { padding: 10px 20px; border-bottom: 1px dotted #ccc; display: flex; justify-content: space-between; font-size: 14px; }
-        .hidden { display: none; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; }
+        .header { background: #333; color: white; padding: 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; }
+        .content { display: none; padding: 0; }
+        .row { padding: 12px 20px; border-bottom: 1px dotted #ccc; display: flex; justify-content: space-between; font-size: 14px; }
+        .row:last-child { border-bottom: none; }
+        .active { display: block; }
     </style>
 </head>
 <body>
 
-<div class="container" id="app">
-    <h3>資料讀取中...</h3>
-</div>
+<div class="container" id="app">資料載入中...</div>
 
 <script>
-    // 唯一需要修改的地方：請將引號內的網址換成您 CSV 發布的真實網址
+    // 這是您確認過有效的 CSV 網址
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
     Papa.parse(CSV_URL, {
         download: true,
         header: true,
         skipEmptyLines: true,
-        complete: (results) => {
+        complete: function(results) {
             const data = results.data;
             const app = document.getElementById('app');
-            app.innerHTML = ''; // 清空載入中提示
-            
-            // 將資料按「公司」與「部門」分組
+            app.innerHTML = ''; 
+
+            // 依據「公司」或「部門」欄位自動分類 (若無則歸類為其他)
             const grouped = data.reduce((acc, row) => {
-                const comp = row['公司'] || '未分類';
-                const dept = row['部門'] || '其他';
-                if (!acc[comp]) acc[comp] = {};
-                if (!acc[comp][dept]) acc[comp][dept] = [];
-                acc[comp][dept].push(row);
+                const key = row['部門'] || row['公司'] || '人員列表';
+                if (!acc[key]) acc[key] = [];
+                acc[key].push(row);
                 return acc;
             }, {});
 
-            // 渲染畫面
-            for (const comp in grouped) {
+            // 產生卡片
+            for (const key in grouped) {
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.innerHTML = `<div class="header">${comp}</div>`;
                 
-                for (const dept in grouped[comp]) {
-                    const deptDiv = document.createElement('div');
-                    deptDiv.className = 'dept';
-                    deptDiv.innerHTML = `<span>${dept}</span><span>▼</span>`;
-                    
-                    const listDiv = document.createElement('div');
-                    listDiv.className = 'hidden';
-                    
-                    grouped[comp][dept].forEach(p => {
-                        listDiv.innerHTML += `<div class="staff"><span>${p['姓名']}</span><span>${p['分機']}</span></div>`;
-                    });
+                const header = document.createElement('div');
+                header.className = 'header';
+                header.innerHTML = `<span>${key}</span><span>▼</span>`;
+                
+                const content = document.createElement('div');
+                content.className = 'content';
+                
+                grouped[key].forEach(p => {
+                    // 這裡自動抓取姓名與分機
+                    const name = p['姓名'] || p['Name'] || '未知姓名';
+                    const ext = p['分機'] || p['Ext'] || '-';
+                    content.innerHTML += `<div class="row"><span>${name}</span><span>${ext}</span></div>`;
+                });
 
-                    deptDiv.onclick = () => listDiv.classList.toggle('hidden');
-                    card.appendChild(deptDiv);
-                    card.appendChild(listDiv);
-                }
+                header.onclick = () => content.classList.toggle('active');
+                card.appendChild(header);
+                card.appendChild(content);
                 app.appendChild(card);
             }
-        },
-        error: (err) => {
-            document.getElementById('app').innerHTML = `<h3 style="color:red;">資料讀取失敗，請確認 CSV 網址是否正確發布。</h3>`;
         }
     });
 </script>
