@@ -2,52 +2,52 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>企業組織通訊錄</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公司組織通訊錄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; }
         .container { max-width: 600px; margin: auto; }
-        .card { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; }
-        .header { background: #333; color: white; padding: 15px; font-weight: bold; }
-        .dept { background: #eee; padding: 10px; cursor: pointer; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; }
-        .staff { padding: 10px 20px; border-bottom: 1px dotted #ccc; display: flex; justify-content: space-between; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .header { background: #333; color: white; padding: 15px; border-radius: 8px 8px 0 0; font-weight: bold; }
+        .dept { background: #f9f9f9; padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; }
+        .staff { padding: 10px 20px; border-bottom: 1px dotted #ccc; display: flex; justify-content: space-between; font-size: 14px; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
 <div class="container" id="app">
-    <h3>正在載入通訊資料...</h3>
+    <h3>資料載入中...</h3>
 </div>
 
 <script>
-    // 【請貼上您的 CSV 發布網址】
+    // 【在這裡填入您那條 CSV 網址】
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
-    function init() {
+    function loadData() {
         Papa.parse(CSV_URL, {
             download: true,
-            header: true, // 假設第一列是欄位名稱
+            header: true,
             skipEmptyLines: true,
-            complete: function(results) {
+            complete: (results) => {
                 render(results.data);
             },
-            error: function(err) {
-                document.getElementById('app').innerHTML = '<h3 style="color:red;">載入失敗，請確認試算表已發布。</h3>';
+            error: (err) => {
+                document.getElementById('app').innerHTML = `<h3 style="color:red;">錯誤：無法讀取資料。請確認您的 CSV 網址是否正確發布。</h3>`;
             }
         });
     }
 
     function render(data) {
         const app = document.getElementById('app');
-        app.innerHTML = ''; // 清空載入中字樣
-        
-        // 依據您的欄位名稱進行分組 (假設 CSV 欄位名稱為：公司, 部門, 姓名, 分機)
-        // 這裡會自動按「公司」分組
+        app.innerHTML = ''; // 清空載入文字
+
+        // 這裡假設您的 CSV 標題列是：公司, 部門, 姓名, 分機
         const grouped = data.reduce((acc, row) => {
             const comp = row['公司'] || '未分類';
-            if (!acc[comp]) acc[comp] = {};
             const dept = row['部門'] || '其他';
+            if (!acc[comp]) acc[comp] = {};
             if (!acc[comp][dept]) acc[comp][dept] = [];
             acc[comp][dept].push(row);
             return acc;
@@ -77,8 +77,7 @@
             app.appendChild(card);
         }
     }
-
-    init();
+    loadData();
 </script>
 </body>
 </html>
