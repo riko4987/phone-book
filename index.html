@@ -60,106 +60,68 @@
 <body>
 
 <h1 class="main-title">企業全體組織通訊錄</h1>
-<div id="update-date" class="update-info">更新日期：2026-05-29</div>
+<div id="update-date" class="update-info">更新日期：同步連線中...</div>
 
 <div class="container">
     <div id="company-88" class="company-card yj-card">
         <div class="comp-header bg-yj">永鉅電機 (簡碼 88)</div>
-        <div class="dept-container">
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">會議室 (A8/A9) <span>[+]</span></div>
-                <div class="staff-list" id="dept-88-1"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">國貿部 (A7) <span>[+]</span></div>
-                <div class="staff-list" id="dept-88-2"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">RiKO業務 / 技術 / 業助 (A7) <span>[+]</span></div>
-                <div class="staff-list" id="dept-88-3"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">倉庫 / 櫃台 (A1) <span>[+]</span></div>
-                <div class="staff-list" id="dept-88-4"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">Power技術 / 業務 (A7) <span>[+]</span></div>
-                <div class="staff-list" id="dept-88-5"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">財會 / 人事 (A8) <span>[+]</span></div>
-                <div class="staff-list" id="dept-88-6"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">中區 / 南區業務 <span>[+]</span></div>
-                <div class="staff-list" id="dept-88-7"></div>
-            </div>
-        </div>
+        <div class="dept-container"></div>
     </div>
 
     <div id="company-66" class="company-card lk-card">
         <div class="comp-header bg-lk">力科光電 (簡碼 66)</div>
-        <div class="dept-container">
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">總經理室 (A1) <span>[+]</span></div>
-                <div class="staff-list" id="dept-66-1"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">機構課 / 技轉課 / 實驗室 (A10) <span>[+]</span></div>
-                <div class="staff-list" id="dept-66-2"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">視覺 / 光電 / PM / DALI (A11) <span>[+]</span></div>
-                <div class="staff-list" id="dept-66-3"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">管理 / 總務 / 威力科 / 資管 <span>[+]</span></div>
-                <div class="staff-list" id="dept-66-4"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">美編 / 門市 (A8/77) <span>[+]</span></div>
-                <div class="staff-list" id="dept-66-5"></div>
-            </div>
-        </div>
+        <div class="dept-container"></div>
     </div>
 
     <div id="company-33" class="company-card fac-card">
         <div class="comp-header bg-fac">力科工廠 (簡碼 33)</div>
-        <div class="dept-container">
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">1F 包射、品保 <span>[+]</span></div>
-                <div class="staff-list" id="dept-33-1"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">2F 力科倉 <span>[+]</span></div>
-                <div class="staff-list" id="dept-33-2"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">3F 光纖產線 <span>[+]</span></div>
-                <div class="staff-list" id="dept-33-3"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">4F 自動化產線 / 電子產線 <span>[+]</span></div>
-                <div class="staff-list" id="dept-33-4"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">5F 電子自動化課 <span>[+]</span></div>
-                <div class="staff-list" id="dept-33-5"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">6F 管理、資材課 / 品保課 <span>[+]</span></div>
-                <div class="staff-list" id="dept-33-6"></div>
-            </div>
-            <div class="dept-group">
-                <div class="dept-title" onclick="toggleDept(this)">7F 會議室、實驗室 <span>[+]</span></div>
-                <div class="staff-list" id="dept-33-7"></div>
-            </div>
-        </div>
+        <div class="dept-container"></div>
     </div>
 </div>
 
 <script>
     const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv";
+
+    function getPhotoSuffix(deptName) {
+        if (deptName.includes("倉庫")) return "_倉庫";
+        if (deptName.includes("櫃台")) return "_櫃台";
+        if (deptName.includes("中區")) return "_中區業務";
+        if (deptName.includes("南區")) return "_南區業務";
+        if (deptName.includes("國貿")) return "_國貿部";
+        if (deptName.includes("Power技術")) return "_Power技術";
+        if (deptName.includes("Power業務")) return "_Power業務";
+        if (deptName.includes("RiKO業務")) return "_RiKO業務";
+        if (deptName.includes("RiKO技術")) return "_RiKO技術";
+        if (deptName.includes("業助")) return "_業助";
+        if (deptName.includes("財會") || deptName.includes("人事")) return "_財會人事";
+        if (deptName.includes("總經理")) return "_總經理室";
+        if (deptName.includes("管理部")) return "_管理部";
+        if (deptName.includes("總務")) return "_總務";
+        if (deptName.includes("文管")) return "_文管";
+        if (deptName.includes("資管")) return "_資管";
+        if (deptName.includes("威力科")) return "_威力科";
+        if (deptName.includes("美編")) return "_美編";
+        if (deptName.includes("門市")) return "_門市";
+        if (deptName.includes("機構")) return "_機構課";
+        if (deptName.includes("技轉")) return "_技轉課";
+        if (deptName.includes("實驗室")) return "_實驗室";
+        if (deptName.includes("視覺")) return "_視覺小組";
+        if (deptName.includes("光電")) return "_光電小組";
+        if (deptName.includes("DALI")) return "_DALI小組";
+        if (deptName.includes("PM")) return "_PM";
+        if (deptName.includes("包射")) return "_包射區";
+        if (deptName.includes("力科倉")) return "_力科倉";
+        if (deptName.includes("光纖")) return "_光纖產線";
+        if (deptName.includes("自動化") || deptName.includes("電子產線")) {
+            if (deptName.includes("電子")) return "_電子產線";
+            return "_自動化產線";
+        }
+        if (deptName.includes("電子自動化課")) return "_電子自動化課";
+        if (deptName.includes("管理資材")) return "_管理資材課";
+        if (deptName.includes("品保課")) return "_品保課";
+        if (deptName.includes("會議室") || deptName.includes("實驗室")) return "_會議室實驗室";
+        return "";
+    }
 
     async function fetchExtensionData() {
         try {
@@ -167,15 +129,15 @@
             const csvText = await response.text();
             parseAndRender(csvText);
         } catch (error) {
-            console.error("無法同步雲端資料:", error);
+            console.error("無法讀取雲端資料:", error);
         }
     }
 
     function parseAndRender(csvText) {
-        // 全面清除換行與前後空白
+        // 使用正則拆分行，完全過濾掉隨機出現的空行與 \r 換行符號
         const rows = csvText.split(/\r?\n/).map(row => row.split(",").map(cell => cell.trim()));
         
-        // 更新日期同步
+        // 解析並同步更新日期
         if (rows[0] && rows[0].length > 0) {
             const lastCell = rows[0][rows[0].length - 1];
             if (lastCell && lastCell.match(/\d{4}/)) {
@@ -183,85 +145,124 @@
             }
         }
 
-        // 用絕對不跑位的方式，將特定格子區間的資料獨立抽取，並精準渲染
+        // 初始化靜態三大公司結構對應容器
+        const dataMap = {
+            "88": {
+                "會議室 (A8/A9)": [], "國貿部 (A7)": [], "RiKO業務 / 技術 / 業助 (A7)": [],
+                "倉庫 / 櫃台 (A1)": [], "Power技術 / 業務 (A7)": [], "財會 / 人事 (A8)": [], "中區 / 南區業務": []
+            },
+            "66": {
+                "總經理室 (A1)": [], "機構課 / 技轉課 / 實驗室 (A10)": [], "視覺 / 光電 / PM / DALI (A11)": [],
+                "管理 / 總務 / 威力科 / 資管": [], "美編 / 門市 (A8/77)": []
+            },
+            "33": {
+                "1F 包射、品保": [], "2F 力科倉": [], "3F 光纖產線": [],
+                "4F 自動化產線 / 電子產線": [], "5F 電子自動化課": [], "6F 管理、資材課 / 品保課": [], "7F 會議室、實驗室": []
+            }
+        };
+
+        // 預設各垂直線上的部門指標
+        let currentDept88_left = "會議室 (A8/A9)";
+        let currentDept88_mid = "國貿部 (A7)";
+        let currentDept88_right = "RiKO業務 / 技術 / 業助 (A7)";
         
-        // --- 永鉅電機 (88) ---
-        fillBlock(rows, 9, 13, 0, 1, "dept-88-1", "_會議室實驗室");
-        fillBlock(rows, 9, 11, 3, 4, "dept-88-2", "_國貿部");
-        fillBlock(rows, 9, 16, 6, 7, "dept-88-3", "_RiKO業務");
-        fillBlock(rows, 15, 20, 0, 1, "dept-88-4", ""); // 倉庫/櫃台
-        fillBlock(rows, 14, 21, 3, 4, "dept-88-5", ""); // Power
-        fillBlock(rows, 19, 25, 6, 7, "dept-88-6", "_財會人事");
-        fillBlock(rows, 23, 27, 0, 1, "dept-88-7", ""); // 中南區
+        let currentDept66_left = "總經理室 (A1)";
+        let currentDept66_mid = "機構課 / 技轉課 / 實驗室 (A10)";
+        let currentDept66_right = "視覺 / 光電 / PM / DALI (A11)";
+        
+        let currentDept33 = "1F 包射、品保";
 
-        // --- 力科光電 (66) ---
-        fillBlock(rows, 9, 10, 9, 10, "dept-66-1", "_總經理室");
-        fillBlock(rows, 9, 18, 12, 13, "dept-66-2", ""); // 機構技轉
-        fillBlock(rows, 9, 20, 14, 15, "dept-66-3", ""); // 視覺光電
-        fillBlock(rows, 13, 21, 9, 10, "dept-66-4", ""); // 管理總務
-        fillBlock(rows, 24, 26, 9, 10, "dept-66-5", ""); // 美編門市
+        // 從第 9 行 (Index 8) 開始逐行往下掃描，採取「動態攔截標題，其餘精準歸類」策略
+        for (let i = 8; i < rows.length; i++) {
+            const r = rows[i];
+            if (!r || r.length === 0) continue;
 
-        // --- 力科工廠 (33) ---
-        fillBlock(rows, 9, 14, 18, 19, "dept-33-1", "_包射區");
-        fillBlock(rows, 16, 17, 18, 19, "dept-33-2", "_力科倉");
-        fillBlock(rows, 19, 24, 18, 19, "dept-33-3", "_光纖產線");
-        fillBlock(rows, 26, 32, 18, 19, "dept-33-4", ""); // 自動化產線
-        fillBlock(rows, 34, 38, 18, 19, "dept-33-5", "_電子自動化課");
-        fillBlock(rows, 40, 47, 18, 19, "dept-33-6", ""); // 管理資材品保
-        fillBlock(rows, 49, 51, 18, 19, "dept-33-7", "_會議室實驗室");
-    }
+            // 1. 【永鉅 88】 子部門標題切換攔截
+            if (r[0] && r[0].includes("倉庫")) { currentDept88_left = "倉庫 / 櫃台 (A1)"; continue; }
+            if (r[0] && r[0].includes("中區")) { currentDept88_left = "中區 / 南區業務"; continue; }
+            if (r[3] && r[3].includes("Power技術")) { currentDept88_mid = "Power技術 / 業務 (A7)"; continue; }
+            if (r[6] && r[6].includes("財會")) { currentDept88_right = "財會 / 人事 (A8)"; continue; }
 
-    function fillBlock(rows, startRow, endRow, nameCol, extCol, targetId, defaultSuffix) {
-        const listContainer = document.getElementById(targetId);
-        if (!listContainer) return;
-        listContainer.innerHTML = "";
+            // 2. 【力科 66】 子部門標題切換攔截
+            if (r[9] && r[9].includes("管理")) { currentDept66_left = "管理 / 總務 / 威力科 / 資管"; continue; }
+            if (r[9] && r[9].includes("美編")) { currentDept66_left = "美編 / 門市 (A8/77)"; continue; }
 
-        // 精準抓取對應的儲存格座標
-        for (let i = startRow - 1; i <= endRow - 1; i++) {
-            if (!rows[i]) continue;
-            const name = rows[i][nameCol];
-            const ext = rows[i][extCol];
-
-            // 徹底過濾任何空白格子，或是誤抓的內部大標題字眼
-            if (!name && !ext) continue;
-            if (name && (name.includes("會議室") || name.includes("倉庫") || name.includes("業務") || name.includes("技術") || name.includes("財會") || name.includes("管理") || name.includes("美編") || name.match(/^\d+F/))) continue;
-
-            const staffItem = document.createElement("div");
-            staffItem.className = "staff-item";
-
-            let photoHtml = "";
-            if (name) {
-                // 決定照片結尾後綴
-                let suffix = defaultSuffix;
-                if (targetId === "dept-88-4") suffix = name.includes("櫃台") ? "_櫃台" : "_倉庫";
-                if (targetId === "dept-88-5") suffix = name.includes("技術") ? "_Power技術" : "_Power業務";
-                if (targetId === "dept-88-7") suffix = name.includes("中區") ? "_中區業務" : "_南區業務";
-                if (targetId === "dept-66-2") {
-                    if (name.includes("機構")) suffix = "_機構課";
-                    else if (name.includes("技轉")) suffix = "_技轉課";
-                    else suffix = "_實驗室";
-                }
-                if (targetId === "dept-66-3") {
-                    if (name.includes("視覺")) suffix = "_視覺小組";
-                    else if (name.includes("光電")) suffix = "_光電小組";
-                    else if (name.includes("DALI")) suffix = "_DALI小組";
-                    else suffix = "_PM";
-                }
-                if (targetId === "dept-66-4") {
-                    if (name.includes("管理")) suffix = "_管理部";
-                    else if (name.includes("總務")) suffix = "_總務";
-                    else if (name.includes("資管")) suffix = "_資管";
-                    else suffix = "_威力科";
-                }
-                if (targetId === "dept-66-5") suffix = name.includes("美編") ? "_美編" : "_門市";
-                if (targetId === "dept-33-4") suffix = name.includes("電子") ? "_電子產線" : "_自動化產線";
-                if (targetId === "dept-33-6") suffix = name.includes("品保") ? "_品保課" : "_管理資材課";
-
-                photoHtml = `<div class="photo-pop"><img src="images/${name}${suffix}.png" onerror="this.parentElement.style.display='none';"></div>`;
+            // 3. 【力科工廠 33】 子部門標題切換攔截
+            if (r[18]) {
+                if (r[18].includes("2F")) { currentDept33 = "2F 力科倉"; continue; }
+                if (r[18].includes("3F")) { currentDept33 = "3F 光纖產線"; continue; }
+                if (r[18].includes("4F")) { currentDept33 = "4F 自動化產線 / 電子產線"; continue; }
+                if (r[18].includes("5F")) { currentDept33 = "5F 電子自動化課"; continue; }
+                if (r[18].includes("6F")) { currentDept33 = "6F 管理、資材課 / 品保課"; continue; }
+                if (r[18].includes("7F")) { currentDept33 = "7F 會議室、實驗室"; continue; }
             }
 
-            staffItem.innerHTML = `<span>${name || ""}</span><span class="ext-num">${ext || ""}</span>${photoHtml}`;
-            listContainer.appendChild(staffItem);
+            // 排除其餘大頂層過濾行（防範誤把表格的大欄位名稱塞成姓名）
+            if (r[0] === "會議室" || r[3] === "國貿部 A7" || r[6] === "RiKO業務 A7" || r[9] === "總經理室 A1" || r[12] === "機構課 A10" || r[14] === "視覺小組 A11" || r[18] === "1F") continue;
+
+            // 執行數據精確注入
+            if (r[0] || r[1]) pushStaff(dataMap["88"], currentDept88_left, r[0], r[1]);
+            if (r[3] || r[4]) pushStaff(dataMap["88"], currentDept88_mid, r[3], r[4]);
+            if (r[6] || r[7]) pushStaff(dataMap["88"], currentDept88_right, r[6], r[7]);
+            
+            if (r[9] || r[10]) pushStaff(dataMap["66"], currentDept66_left, r[9], r[10]);
+            if (r[12] || r[13]) pushStaff(dataMap["66"], currentDept66_mid, r[12], r[13]);
+            if (r[14] || r[15]) pushStaff(dataMap["66"], currentDept66_right, r[14], r[15]);
+            
+            if (r[18] || r[19]) pushStaff(dataMap["33"], currentDept33, r[18], r[19]);
+        }
+
+        // 渲染至 HTML DOM 節點
+        renderCompany("88", dataMap["88"]);
+        renderCompany("66", dataMap["66"]);
+        renderCompany("33", dataMap["33"]);
+    }
+
+    function pushStaff(compMap, deptName, name, ext) {
+        if (!name && !ext) return;
+        // 嚴格防止空值與殘留的格式線被劃入名單
+        if (name === "" && ext === "") return;
+        if (compMap[deptName]) {
+            compMap[deptName].push({ name: name || "", ext: ext || "" });
+        }
+    }
+
+    function renderCompany(compId, deptData) {
+        const card = document.getElementById("company-" + compId);
+        const container = card.querySelector(".dept-container");
+        container.innerHTML = "";
+
+        for (const [deptName, staffList] of Object.entries(deptData)) {
+            if (staffList.length === 0) continue;
+
+            const deptGroup = document.createElement("div");
+            deptGroup.className = "dept-group";
+
+            const deptTitle = document.createElement("div");
+            deptTitle.className = "dept-title";
+            deptTitle.innerHTML = `${deptName} <span>[+]</span>`;
+            deptTitle.onclick = () => toggleDept(deptTitle);
+
+            const staffListDiv = document.createElement("div");
+            staffListDiv.className = "staff-list";
+
+            staffList.forEach(staff => {
+                const staffItem = document.createElement("div");
+                staffItem.className = "staff-item";
+                
+                let photoHtml = "";
+                if (staff.name) {
+                    const suffix = getPhotoSuffix(deptName);
+                    photoHtml = `<div class="photo-pop"><img src="images/${staff.name}${suffix}.png" onerror="this.parentElement.style.display='none';"></div>`;
+                }
+
+                staffItem.innerHTML = `<span>${staff.name}</span><span class="ext-num">${staff.ext}</span>${photoHtml}`;
+                staffListDiv.appendChild(staffItem);
+            });
+
+            deptGroup.appendChild(deptTitle);
+            deptGroup.appendChild(staffListDiv);
+            container.appendChild(deptGroup);
         }
     }
 
