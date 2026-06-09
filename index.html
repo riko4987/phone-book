@@ -1,26 +1,20 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>企業組織通訊錄</title>
-</head>
 <body>
-    <div id="container">讀取中...</div>
-
+    <div id="debug">正在讀取...</div>
     <script>
-        // 【關鍵】請把這裡替換成您剛剛複製的 /exec 網址
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyCxu9ywYVKBB7F_19ZIQ8QeWHYJvn8ElYEMSDOnfD3VTRYbDTT2ruzI4VvGqAkULvxSQ/exec';
+        // 這裡填入您確認過的 GAS 網址
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwfmL7IA3nZ_jU-wjtSc1XbYIuaqmjEadhwMDSOZf--a_3gYbo9tbhFODp4Bm-w9etcoA/exec';
 
         fetch(API_URL)
-            .then(res => res.json())
-            .then(data => {
-                // data[0] 是標題行，data[1] 之後才是資料
-                // data[i][0]=公司, [1]=部門, [2]=姓名, [3]=分機
-                document.getElementById('container').innerHTML = '讀取成功！總筆數：' + (data.length - 1);
-                console.log(data); // 按 F12 查看資料是否已經載入
+            .then(res => res.text()) // 先抓純文字，不要轉 JSON
+            .then(text => {
+                // 直接把抓到的內容丟到螢幕上，這樣您就知道到底是發生什麼事了
+                document.getElementById('debug').innerText = '抓到的內容是：' + text;
+                console.log(text);
             })
             .catch(err => {
-                document.getElementById('container').innerHTML = '連線錯誤：' + err;
+                document.getElementById('debug').innerText = '錯誤：' + err;
             });
     </script>
 </body>
