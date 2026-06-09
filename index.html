@@ -1,18 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <body>
-    <div id="status">正在測試連線...</div>
+    <div id="status">正在同步資料...</div>
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbylj-bQt9r-SmF-l7fND7boAe-vVEr5f3RHZOIr0UldkvfcDRJDm03fCTA3rbOx7k2Kww/exec';
+        // 【請貼上剛剛複製的 CSV 公開網址】
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
-        fetch(API_URL)
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('status').innerText = '連線成功！資料已抓取，共 ' + data.length + ' 筆。';
-                console.log(data); // 按 F12 可以看到資料
+        fetch(csvUrl)
+            .then(res => res.text())
+            .then(csvText => {
+                // 簡易將 CSV 轉為陣列
+                const rows = csvText.split('\n').map(row => row.split(','));
+                document.getElementById('status').innerText = '同步成功！共讀取 ' + rows.length + ' 筆資料。';
+                console.log(rows); // 按 F12 在 Console 查看資料結構
             })
             .catch(err => {
-                document.getElementById('status').innerText = '連線失敗，請檢查網址與部署權限。錯誤：' + err;
+                document.getElementById('status').innerText = '連線失敗：' + err;
             });
     </script>
 </body>
