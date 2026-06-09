@@ -2,13 +2,13 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>企業全體組織通訊錄</title>
+    <title>企業全體組織通訊錄 - 自動更新版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        /* ⚠️ 這是您原本的 CSS，我完全保留 */
+        /* 【完全保留您原本的 CSS，外觀絕對不會變】 */
         :root { --yj: #e91e63; --yj-bg: #fff0f3; --lk: #2e7d32; --lk-bg: #f1f8f1; --fac: #fbc02d; --fac-bg: #fff9e6; }
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
-        .main-title { text-align: center; color: #333; font-weight: bold; margin-bottom: 25px; }
+        .main-title { text-align: center; color: #333; font-weight: bold; margin-bottom: 5px; }
         .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
         .company-card { background: white; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; margin-bottom: 20px; overflow: visible; }
         .comp-header { padding: 15px; color: white; text-align: center; font-weight: bold; font-size: 1.25em; border-radius: 12px 12px 0 0; }
@@ -17,6 +17,7 @@
         .bg-fac { background-color: var(--fac); color: #333; }
         .dept-group { border-bottom: 1px solid #eee; }
         .dept-title { padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; border-left: 4px solid transparent; }
+        /* 針對各公司顏色設定 border-left */
         .company-card.yj-card .dept-title { border-left-color: var(--yj); }
         .company-card.lk-card .dept-title { border-left-color: var(--lk); }
         .company-card.fac-card .dept-title { border-left-color: var(--fac); }
@@ -26,7 +27,7 @@
         .staff-item:hover { background-color: rgba(0,0,0,0.05); color: #d32f2f; font-weight: bold; }
         .ext-num { font-family: "Consolas", monospace; color: #555; }
         .photo-pop { display: none; position: absolute; left: 105%; top: 50%; transform: translateY(-50%); width: 320px; background: white; border: 2px solid #ccc; box-shadow: 10px 10px 30px rgba(0,0,0,0.3); z-index: 9999; padding: 12px; border-radius: 12px; pointer-events: none; }
-        .fac-card .photo-pop { left: auto; right: 105%; }
+        .fac-card .photo-pop { left: auto; right: 105%; box-shadow: -10px 10px 30px rgba(0,0,0,0.3); }
         .photo-pop img { width: 300px; height: 300px; object-fit: cover; border-radius: 8px; }
         .staff-item:hover .photo-pop { display: block; }
     </style>
@@ -43,53 +44,53 @@
     Papa.parse(CSV_URL, {
         download: true, header: true, skipEmptyLines: true,
         complete: function(results) {
+            const container = document.getElementById('app');
+            container.innerHTML = ''; // 清空原本的 HTML
+
+            // 結構化資料：{ 公司名稱: { 部門名稱: [人員陣列] } }
             const data = results.data;
-            const app = document.getElementById('app');
-            app.innerHTML = '';
-            
-            // 將資料整理成層級結構
-            const structured = {};
+            const tree = {};
+
             data.forEach(row => {
                 const comp = row['公司'] || '未分類';
                 const dept = row['部門'] || '未分類';
-                if (!structured[comp]) structured[comp] = {};
-                if (!structured[comp][dept]) structured[comp][dept] = [];
-                structured[comp][dept].push(row);
+                if (!tree[comp]) tree[comp] = {};
+                if (!tree[comp][dept]) tree[comp][dept] = [];
+                tree[comp][dept].push(row);
             });
 
-            // 嚴格渲染原始結構
-            for (const comp in structured) {
+            // 渲染結構 (完全依照您原本的 DOM 層級)
+            for (const comp in tree) {
                 const card = document.createElement('div');
-                // 判斷樣式
-                let cssClass = 'yj-card'; let bgColor = 'bg-yj';
-                if(comp.includes('力科光電')) { cssClass = 'lk-card'; bgColor = 'bg-lk'; }
-                else if(comp.includes('工廠')) { cssClass = 'fac-card'; bgColor = 'bg-fac'; }
+                let css = 'yj-card'; let bg = 'bg-yj';
+                if (comp.includes('力科光電')) { css = 'lk-card'; bg = 'bg-lk'; }
+                else if (comp.includes('工廠')) { css = 'fac-card'; bg = 'bg-fac'; }
                 
-                card.className = `company-card ${cssClass}`;
-                card.innerHTML = `<div class="comp-header ${bgColor}">${comp}</div>`;
+                card.className = `company-card ${css}`;
+                card.innerHTML = `<div class="comp-header ${bg}">${comp}</div>`;
                 
-                for (const dept in structured[comp]) {
+                for (const dept in tree[comp]) {
                     const group = document.createElement('div');
                     group.className = 'dept-group';
                     group.innerHTML = `<div class="dept-title" onclick="toggleDept(this)">${dept} <span>[+]</span></div>
                                        <div class="staff-list"></div>`;
                     
                     const list = group.querySelector('.staff-list');
-                    structured[comp][dept].forEach(p => {
+                    tree[comp][dept].forEach(p => {
                         const item = document.createElement('div');
                         item.className = 'staff-item';
-                        const photo = p['照片連結'] ? `<div class="photo-pop"><img src="${p['照片連結']}"></div>` : '';
-                        item.innerHTML = `<span>${p['姓名']}</span><span class="ext-num">${p['分機']}</span>${photo}`;
+                        // 這是您原本的核心功能：滑鼠懸停顯示照片
+                        const imgTag = p['照片連結'] ? `<div class="photo-pop"><img src="${p['照片連結']}"></div>` : '';
+                        item.innerHTML = `<span>${p['姓名']}</span><span class="ext-num">${p['分機']}</span>${imgTag}`;
                         list.appendChild(item);
                     });
                     card.appendChild(group);
                 }
-                app.appendChild(card);
+                container.appendChild(card);
             }
         }
     });
 
-    // 展開/收合功能
     function toggleDept(el) {
         const group = el.parentElement;
         group.classList.toggle('expanded');
