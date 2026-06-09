@@ -3,38 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>企業全體組織通訊錄</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root { 
-            --yj: #e91e63; --yj-bg: #fff0f3; 
-            --lk: #2e7d32; --lk-bg: #f1f8f1; 
-            --fac: #fbc02d; --fac-bg: #fff9e6; 
-        }
-        
+        :root { --yj: #e91e63; --yj-bg: #fff0f3; --lk: #2e7d32; --lk-bg: #f1f8f1; --fac: #fbc02d; --fac-bg: #fff9e6; }
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
         .main-title { text-align: center; color: #333; font-weight: bold; margin-bottom: 5px; }
         .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
-        
         .company-card { background: white; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; margin-bottom: 20px; }
         .comp-header { padding: 15px; color: white; text-align: center; font-weight: bold; font-size: 1.25em; border-radius: 12px 12px 0 0; }
-        .bg-yj { background-color: var(--yj); }
-        .bg-lk { background-color: var(--lk); }
-        .bg-fac { background-color: var(--fac); color: #333; }
-        
+        .bg-yj { background-color: var(--yj); } .bg-lk { background-color: var(--lk); } .bg-fac { background-color: var(--fac); color: #333; }
         .dept-group { border-bottom: 1px solid #eee; }
         .dept-title { padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; border-left: 4px solid transparent; }
-        
         .yj-card .dept-title { border-left-color: var(--yj); }
         .lk-card .dept-title { border-left-color: var(--lk); }
         .fac-card .dept-title { border-left-color: var(--fac); }
-        
         .staff-list { display: none; padding: 0; }
         .expanded .staff-list { display: block; }
-        
         .staff-item { display: flex; justify-content: space-between; padding: 10px 25px; border-bottom: 1px dotted #eee; position: relative; cursor: pointer; min-height: 24px; }
         .staff-item:hover { background-color: rgba(0,0,0,0.05); color: #d32f2f; font-weight: bold; }
         .ext-num { font-family: "Consolas", monospace; color: #555; }
-        
         .photo-pop { display: none; position: absolute; left: 105%; top: 50%; transform: translateY(-50%); width: 320px; background: white; border: 2px solid #ccc; box-shadow: 10px 10px 30px rgba(0,0,0,0.3); z-index: 9999; padding: 12px; border-radius: 12px; pointer-events: none; }
         .photo-pop img { width: 300px; height: 300px; object-fit: cover; border-radius: 8px; }
         .staff-item:hover .photo-pop { display: block; }
@@ -46,53 +32,51 @@
     <div class="container" id="app"></div>
 
     <script>
-        // 替換此處為您的 CSV 發布連結
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
+        // 資料已全數整合在此
+        const staffData = [
+            { 公司: '研發部', 部門: '品保課', 姓名: '王福祥', 分機: '232' },
+            { 公司: '研發部', 部門: '品保課', 姓名: '林春富', 分機: '216' },
+            { 公司: '研發部', 部門: '品保課', 姓名: '阮柏儀', 分機: '255' },
+            { 公司: '研發部', 部門: '品保課', 姓名: '宋炎庭', 分機: '255' },
+            { 公司: '總務部', 部門: '7F 會議室、實驗室', 姓名: '會議室', 分機: '366' },
+            { 公司: '總務部', 部門: '7F 會議室、實驗室', 姓名: '陳淑蘭', 分機: '320' }
+        ];
 
-        Papa.parse(CSV_URL, {
-            download: true, header: true, skipEmptyLines: true,
-            complete: function(results) {
-                const app = document.getElementById('app');
-                const data = results.data;
-                const tree = {};
+        const app = document.getElementById('app');
+        const tree = {};
 
-                data.forEach(row => {
-                    const c = row['公司'] || '未分類';
-                    const d = row['部門'] || '未分類';
-                    if (!tree[c]) tree[c] = {};
-                    if (!tree[c][d]) tree[c][d] = [];
-                    tree[c][d].push(row);
-                });
-
-                for (const comp in tree) {
-                    const card = document.createElement('div');
-                    let css = 'yj-card'; let bg = 'bg-yj';
-                    if (comp.includes('力科')) { css = 'lk-card'; bg = 'bg-lk'; }
-                    else if (comp.includes('工廠')) { css = 'fac-card'; bg = 'bg-fac'; }
-
-                    card.className = `company-card ${css}`;
-                    card.innerHTML = `<div class="comp-header ${bg}">${comp}</div>`;
-                    
-                    for (const dept in tree[comp]) {
-                        const group = document.createElement('div');
-                        group.className = 'dept-group';
-                        group.innerHTML = `<div class="dept-title" onclick="toggleDept(this)">${dept} <span>[+]</span></div>
-                                           <div class="staff-list"></div>`;
-                        
-                        const list = group.querySelector('.staff-list');
-                        tree[comp][dept].forEach(p => {
-                            const item = document.createElement('div');
-                            item.className = 'staff-item';
-                            const photo = p['圖片連結'] ? `<div class="photo-pop"><img src="${p['圖片連結']}"></div>` : '';
-                            item.innerHTML = `<span>${p['姓名']}</span><span class="ext-num">${p['分機']}</span>${photo}`;
-                            list.appendChild(item);
-                        });
-                        card.appendChild(group);
-                    }
-                    app.appendChild(card);
-                }
-            }
+        staffData.forEach(p => {
+            if (!tree[p.公司]) tree[p.公司] = {};
+            if (!tree[p.公司][p.部門]) tree[p.公司][p.部門] = [];
+            tree[p.公司][p.部門].push(p);
         });
+
+        for (const comp in tree) {
+            const card = document.createElement('div');
+            let css = 'yj-card'; let bg = 'bg-yj';
+            if (comp.includes('力科')) { css = 'lk-card'; bg = 'bg-lk'; }
+            else if (comp.includes('總務')) { css = 'fac-card'; bg = 'bg-fac'; }
+
+            card.className = `company-card ${css}`;
+            card.innerHTML = `<div class="comp-header ${bg}">${comp}</div>`;
+            
+            for (const dept in tree[comp]) {
+                const group = document.createElement('div');
+                group.className = 'dept-group';
+                group.innerHTML = `<div class="dept-title" onclick="toggleDept(this)">${dept} <span>[+]</span></div>
+                                   <div class="staff-list"></div>`;
+                
+                const list = group.querySelector('.staff-list');
+                tree[comp][dept].forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'staff-item';
+                    item.innerHTML = `<span>${p.姓名}</span><span class="ext-num">${p.分機}</span>`;
+                    list.appendChild(item);
+                });
+                card.appendChild(group);
+            }
+            app.appendChild(card);
+        }
 
         function toggleDept(el) {
             const group = el.parentElement;
