@@ -5,7 +5,7 @@
     <title>企業全體組織通訊錄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        /* ⚠️ 完整保留您原檔案的 CSS，確保外觀 100% 相同 */
+        /* ⚠️ 完全保留您原始檔案的 CSS，確保外觀 100% 相同 */
         :root { --yj: #e91e63; --yj-bg: #fff0f3; --lk: #2e7d32; --lk-bg: #f1f8f1; --fac: #fbc02d; --fac-bg: #fff9e6; }
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
         .main-title { text-align: center; color: #333; font-weight: bold; margin-bottom: 5px; }
@@ -37,59 +37,59 @@
 <div class="container" id="app">資料載入中...</div>
 
 <script>
-    // 【請貼上您的 Google 試算表 CSV 發布連結】
+    // 【設定您的 CSV 連結】
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
     Papa.parse(CSV_URL, {
         download: true, header: true, skipEmptyLines: true,
         complete: function(results) {
-            const container = document.getElementById('app');
-            container.innerHTML = ''; 
+            const app = document.getElementById('app');
+            app.innerHTML = ''; 
 
-            const data = results.data;
-            const tree = {};
-
-            // 1. 整理資料結構
-            data.forEach(row => {
+            // 將資料按公司 > 部門分組
+            const groups = {};
+            results.data.forEach(row => {
                 const comp = row['公司'] || '未分類';
                 const dept = row['部門'] || '未分類';
-                if (!tree[comp]) tree[comp] = {};
-                if (!tree[comp][dept]) tree[comp][dept] = [];
-                tree[comp][dept].push(row);
+                if (!groups[comp]) groups[comp] = {};
+                if (!groups[comp][dept]) groups[comp][dept] = [];
+                groups[comp][dept].push(row);
             });
 
-            // 2. 依照原本結構渲染
-            for (const comp in tree) {
+            // 嚴格依照您原本的結構渲染
+            for (const comp in groups) {
                 const card = document.createElement('div');
+                // 自動判斷顏色 class
                 let css = 'yj-card'; let bg = 'bg-yj';
-                if (comp.includes('力科光電')) { css = 'lk-card'; bg = 'bg-lk'; }
-                else if (comp.includes('工廠')) { css = 'fac-card'; bg = 'bg-fac'; }
+                if(comp.includes('力科光電')) { css = 'lk-card'; bg = 'bg-lk'; }
+                else if(comp.includes('工廠')) { css = 'fac-card'; bg = 'bg-fac'; }
                 
                 card.className = `company-card ${css}`;
                 card.innerHTML = `<div class="comp-header ${bg}">${comp}</div>`;
                 
-                for (const dept in tree[comp]) {
+                for (const dept in groups[comp]) {
                     const group = document.createElement('div');
                     group.className = 'dept-group';
                     group.innerHTML = `<div class="dept-title" onclick="toggleDept(this)">${dept} <span>[+]</span></div>
                                        <div class="staff-list"></div>`;
                     
                     const list = group.querySelector('.staff-list');
-                    tree[comp][dept].forEach(p => {
+                    groups[comp][dept].forEach(p => {
                         const item = document.createElement('div');
                         item.className = 'staff-item';
-                        // 這是您原始結構的核心：顯示圖片的 div
-                        const imgTag = p['圖片路徑'] ? `<div class="photo-pop"><img src="${p['圖片路徑']}"></div>` : '';
-                        item.innerHTML = `<span>${p['姓名']}</span><span class="ext-num">${p['分機']}</span>${imgTag}`;
+                        // 加入原本的 photo-pop 結構
+                        const photo = p['圖片連結'] ? `<div class="photo-pop"><img src="${p['圖片連結']}"></div>` : '';
+                        item.innerHTML = `<span>${p['姓名']}</span><span class="ext-num">${p['分機']}</span>${photo}`;
                         list.appendChild(item);
                     });
                     card.appendChild(group);
                 }
-                container.appendChild(card);
+                app.appendChild(card);
             }
         }
     });
 
+    // 保留原本的摺疊功能
     function toggleDept(el) {
         const group = el.parentElement;
         group.classList.toggle('expanded');
