@@ -2,70 +2,25 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>專業通訊錄</title>
+    <title>公司通訊錄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f6f8; padding: 20px; }
-        .container { max-width: 600px; margin: auto; }
-        .card { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; overflow: hidden; }
-        .header { background: #333; color: white; padding: 15px; font-weight: bold; font-size: 1.1em; }
-        .row { padding: 12px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .debug { color: red; padding: 20px; background: #fff0f0; border: 1px solid red; }
-    </style>
 </head>
 <body>
-    <div class="container" id="app">正在為您組裝通訊錄...</div>
+    <div id="result">資料載入中...</div>
 
     <script>
-        // 【唯一要改的地方：請填入您的 CSV 發布網址】
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
+        // 【請把下面網址換成您剛剛複製的 CSV 發布網址】
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
-        Papa.parse(CSV_URL, {
+        Papa.parse(csvUrl, {
             download: true,
             header: true,
-            skipEmptyLines: true,
-            complete: (results) => {
-                const app = document.getElementById('app');
-                const data = results.data;
-                const headers = results.meta.fields;
-
-                if (data.length === 0) {
-                    app.innerHTML = '<div class="debug">資料是空的，請確認試算表已有內容。</div>';
-                    return;
-                }
-
-                // 自動抓取前三欄，不用擔心欄位名稱對不上
-                const col1 = headers[0]; // 例如：部門
-                const col2 = headers[1]; // 例如：姓名
-                const col3 = headers[2]; // 例如：分機
-
-                // 分組邏輯
-                const groups = data.reduce((acc, row) => {
-                    const key = row[col1] || '其他';
-                    if (!acc[key]) acc[key] = [];
-                    acc[key].push(row);
-                    return acc;
-                }, {});
-
-                // 渲染 HTML
-                app.innerHTML = '';
-                for (const group in groups) {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `<div class="header">${group}</div>`;
-                    
-                    groups[group].forEach(item => {
-                        card.innerHTML += `
-                            <div class="row">
-                                <span>${item[col2] || ''}</span>
-                                <span style="font-weight:bold; color:#007bff;">${item[col3] || ''}</span>
-                            </div>`;
-                    });
-                    app.appendChild(card);
-                }
+            complete: function(results) {
+                // 這裡簡單顯示結果
+                document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(results.data, null, 2) + '</pre>';
             },
-            error: (err) => {
-                document.getElementById('app').innerHTML = `<div class="debug">讀取錯誤，請確認網址。</div>`;
+            error: function(err) {
+                document.getElementById('result').innerText = '讀取失敗: ' + err;
             }
         });
     </script>
