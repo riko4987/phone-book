@@ -1,24 +1,18 @@
 <!DOCTYPE html>
 <html>
 <body>
-    <h2 id="status">正在測試連線...</h2>
-    <pre id="data-output"></pre>
-
+    <div id="status">正在測試連線...</div>
     <script>
-        // 換上您剛剛確認過能跑出資料的那個新網址
-        const API_URL = 'https://script.google.com/macros/s/AKfycbx3SAd5TzYcSs6m7Dv62ENK-KJadbgbbnlMhCj6jpVeym_yEGPQKlv7Noox2BkBxYBfAw/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbylj-bQt9r-SmF-l7fND7boAe-vVEr5f3RHZOIr0UldkvfcDRJDm03fCTA3rbOx7k2Kww/exec';
 
         fetch(API_URL)
-            .then(res => {
-                if (!res.ok) throw new Error('網頁回傳錯誤，狀態碼：' + res.status);
-                return res.json();
-            })
+            .then(res => res.json())
             .then(data => {
-                document.getElementById('status').innerText = '連線成功！資料已抓取。';
-                document.getElementById('data-output').innerText = JSON.stringify(data, null, 2);
+                document.getElementById('status').innerText = '連線成功！資料已抓取，共 ' + data.length + ' 筆。';
+                console.log(data); // 按 F12 可以看到資料
             })
             .catch(err => {
-                document.getElementById('status').innerText = '連線失敗：' + err.message;
+                document.getElementById('status').innerText = '連線失敗，請檢查網址與部署權限。錯誤：' + err;
             });
     </script>
 </body>
