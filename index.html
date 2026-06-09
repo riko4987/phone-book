@@ -7,12 +7,13 @@
     <style>
         body { font-family: sans-serif; background-color: #f4f4f4; padding: 20px; }
         .container { max-width: 600px; margin: auto; }
-        /* 視覺樣式：與您的原檔案一致 */
+        /* 恢復您原有的卡片視覺效果 */
         .card { background: white; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; }
-        .dept-header { background: #333; color: white; padding: 10px 15px; font-weight: bold; }
-        .row { display: flex; justify-content: space-between; padding: 10px 15px; border-bottom: 1px solid #eee; }
+        .dept-header { background: #333; color: white; padding: 12px 15px; font-weight: bold; font-size: 16px; }
+        .row { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #eee; align-items: center; }
         .row:last-child { border-bottom: none; }
-        .ext-text { color: #555; }
+        .name { color: #333; }
+        .ext { color: #555; font-size: 0.9em; }
     </style>
 </head>
 <body>
@@ -25,7 +26,7 @@
 
     Papa.parse(CSV_URL, {
         download: true,
-        header: false, // 關鍵：不依賴標題列
+        header: false, // 強制關閉 Header，避免因為標題欄導致的資料錯位
         skipEmptyLines: true,
         complete: function(results) {
             const data = results.data;
@@ -34,10 +35,9 @@
 
             const groups = {};
 
-            // 資料處理：直接指定欄位位置
-            // A欄(0) = 部門, B欄(1) = 姓名, C欄(2) = 分機
+            // 嚴格依照列順序讀取：0=部門, 1=姓名, 2=分機
             data.forEach((row, index) => {
-                // 如果第一行是標題，請保留下面這行；若無標題，請刪除
+                // 如果您的第一列是標題，請保留這行；若無標題，請刪除這行
                 if (index === 0) return; 
 
                 const dept = row[0] || '未分類';
@@ -48,7 +48,7 @@
                 groups[dept].push({ name, ext });
             });
 
-            // 渲染：產生符合您審美的卡片結構
+            // 渲染畫面
             for (const dept in groups) {
                 const card = document.createElement('div');
                 card.className = 'card';
@@ -57,7 +57,7 @@
                 groups[dept].forEach(item => {
                     const row = document.createElement('div');
                     row.className = 'row';
-                    row.innerHTML = `<span>${item.name}</span><span class="ext-text">${item.ext}</span>`;
+                    row.innerHTML = `<span class="name">${item.name}</span><span class="ext">${item.ext}</span>`;
                     card.appendChild(row);
                 });
                 app.appendChild(card);
