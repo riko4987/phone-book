@@ -2,31 +2,32 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>企業組織通訊錄</title>
+    <title>企業全體組織通訊錄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         :root { --yj: #e91e63; --lk: #2e7d32; --fac: #fbc02d; }
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
         .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
         .company-card { background: white; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; margin-bottom: 20px; }
-        .comp-header { padding: 15px; color: white; text-align: center; font-weight: bold; font-size: 1.25em; border-radius: 12px 12px 0 0; background-color: #333; }
+        .comp-header { padding: 15px; color: white; text-align: center; font-weight: bold; font-size: 1.25em; border-radius: 12px 12px 0 0; }
+        .bg-yj { background-color: var(--yj); } .bg-lk { background-color: var(--lk); } .bg-fac { background-color: var(--fac); color: #333; }
         .dept-group { border-bottom: 1px solid #eee; }
-        .dept-title { padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; border-left: 4px solid #333; }
+        .dept-title { padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; border-left: 4px solid #ccc; }
         .staff-list { display: none; padding: 0; }
         .expanded .staff-list { display: block; }
-        .staff-item { display: flex; justify-content: space-between; padding: 10px 25px; border-bottom: 1px dotted #eee; position: relative; cursor: pointer; }
+        .staff-item { display: flex; justify-content: space-between; padding: 10px 25px; border-bottom: 1px dotted #eee; cursor: pointer; position: relative; }
         .staff-item:hover { background-color: rgba(0,0,0,0.05); color: #d32f2f; font-weight: bold; }
-        .ext-num { font-family: "Consolas", monospace; color: #555; font-weight: bold; }
-        .photo-pop { display: none; position: absolute; left: 105%; top: 50%; transform: translateY(-50%); width: 320px; background: white; border: 2px solid #ccc; box-shadow: 10px 10px 30px rgba(0,0,0,0.3); z-index: 999; padding: 12px; border-radius: 12px; pointer-events: none; }
-        .photo-pop img { width: 300px; height: 300px; object-fit: cover; border-radius: 8px; }
+        .ext-num { font-family: "Consolas", monospace; color: #555; }
+        .photo-pop { display: none; position: absolute; left: 105%; top: 50%; transform: translateY(-50%); width: 320px; background: white; border: 2px solid #ccc; box-shadow: 10px 10px 30px rgba(0,0,0,0.3); z-index: 9999; pointer-events: none; }
+        .photo-pop img { width: 300px; height: 300px; object-fit: cover; }
         .staff-item:hover .photo-pop { display: block; }
     </style>
 </head>
 <body>
-
-    <div class="container" id="app">資料載入中...</div>
+    <div class="container" id="app">載入資料中...</div>
 
     <script>
+        // 【重要】請將下方網址替換成您 Google 試算表發布的 CSV 網址
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
         Papa.parse(CSV_URL, {
@@ -36,7 +37,6 @@
                 app.innerHTML = '';
                 const tree = {};
 
-                // 資料分類
                 results.data.forEach(row => {
                     const c = row['公司'] || '未分類';
                     const d = row['部門'] || '其他';
@@ -45,23 +45,26 @@
                     tree[c][d].push(row);
                 });
 
-                // 渲染畫面
                 for (const comp in tree) {
                     const card = document.createElement('div');
                     card.className = 'company-card';
-                    card.innerHTML = `<div class="comp-header">${comp}</div>`;
+                    // 根據公司名稱自動套用顏色
+                    let colorClass = 'bg-yj';
+                    if (comp.includes('力科')) colorClass = 'bg-lk';
+                    if (comp.includes('總務')) colorClass = 'bg-fac';
+                    
+                    card.innerHTML = `<div class="comp-header ${colorClass}">${comp}</div>`;
                     
                     for (const dept in tree[comp]) {
                         const group = document.createElement('div');
                         group.className = 'dept-group';
                         group.innerHTML = `<div class="dept-title" onclick="this.parentElement.classList.toggle('expanded')">${dept} <span>[+]</span></div>
                                            <div class="staff-list"></div>`;
-                        
                         const list = group.querySelector('.staff-list');
                         tree[comp][dept].forEach(p => {
                             const item = document.createElement('div');
                             item.className = 'staff-item';
-                            const photo = p['圖片連結'] ? `<div class="photo-pop"><img src="${p['圖片連結']}"></div>` : '';
+                            const photo = p['圖片檔名'] ? `<div class="photo-pop"><img src="images/${p['圖片檔名']}"></div>` : '';
                             item.innerHTML = `<span>${p['姓名']}</span><span class="ext-num">${p['分機'] || ''}</span>${photo}`;
                             list.appendChild(item);
                         });
