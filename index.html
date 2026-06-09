@@ -1,83 +1,30 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>公司組織通訊錄</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: auto; }
-        .card { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .header { background: #333; color: white; padding: 15px; border-radius: 8px 8px 0 0; font-weight: bold; }
-        .dept { background: #f9f9f9; padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; }
-        .staff { padding: 10px 20px; border-bottom: 1px dotted #ccc; display: flex; justify-content: space-between; font-size: 14px; }
-        .hidden { display: none; }
-    </style>
+    <title>通訊錄</title>
 </head>
 <body>
+    <h1 id="msg">請稍候，系統正在檢查...</h1>
 
-<div class="container" id="app">
-    <h3>資料載入中...</h3>
-</div>
+    <script>
+        // 【這行一定要改！】請把下面這行引號內的文字，換成您從 Google 試算表拿到的 CSV 網址
+        const url = '請貼上您的CSV發布網址';
 
-<script>
-    // 【在這裡填入您那條 CSV 網址】
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
-
-    function loadData() {
-        Papa.parse(CSV_URL, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: (results) => {
-                render(results.data);
-            },
-            error: (err) => {
-                document.getElementById('app').innerHTML = `<h3 style="color:red;">錯誤：無法讀取資料。請確認您的 CSV 網址是否正確發布。</h3>`;
-            }
-        });
-    }
-
-    function render(data) {
-        const app = document.getElementById('app');
-        app.innerHTML = ''; // 清空載入文字
-
-        // 這裡假設您的 CSV 標題列是：公司, 部門, 姓名, 分機
-        const grouped = data.reduce((acc, row) => {
-            const comp = row['公司'] || '未分類';
-            const dept = row['部門'] || '其他';
-            if (!acc[comp]) acc[comp] = {};
-            if (!acc[comp][dept]) acc[comp][dept] = [];
-            acc[comp][dept].push(row);
-            return acc;
-        }, {});
-
-        for (const comp in grouped) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `<div class="header">${comp}</div>`;
-            
-            for (const dept in grouped[comp]) {
-                const deptDiv = document.createElement('div');
-                deptDiv.className = 'dept';
-                deptDiv.innerHTML = `<span>${dept}</span><span>▼</span>`;
-                
-                const listDiv = document.createElement('div');
-                listDiv.className = 'hidden';
-                
-                grouped[comp][dept].forEach(p => {
-                    listDiv.innerHTML += `<div class="staff"><span>${p['姓名']}</span><span>${p['分機']}</span></div>`;
+        // 檢查有沒有填網址
+        if (url === '請貼上您的CSV發布網址') {
+            document.getElementById('msg').innerText = '錯誤：您還沒有填入 CSV 網址！';
+        } else {
+            fetch(url)
+                .then(res => res.text())
+                .then(data => {
+                    document.getElementById('msg').innerText = '連線成功！已經抓到資料，共 ' + data.length + ' 個字元。';
+                    console.log(data); // 按 F12 可以看到資料內容
+                })
+                .catch(err => {
+                    document.getElementById('msg').innerText = '連線失敗，請檢查網路或網址。錯誤: ' + err;
                 });
-
-                deptDiv.onclick = () => listDiv.classList.toggle('hidden');
-                card.appendChild(deptDiv);
-                card.appendChild(listDiv);
-            }
-            app.appendChild(card);
         }
-    }
-    loadData();
-</script>
+    </script>
 </body>
 </html>
