@@ -2,68 +2,95 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>公司通訊錄</title>
+    <title>企業全體組織通訊錄 - 自動更新版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { font-family: sans-serif; background-color: #f4f4f4; padding: 20px; }
-        .container { max-width: 600px; margin: auto; }
-        /* 恢復您原有的卡片視覺效果 */
-        .card { background: white; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; }
-        .dept-header { background: #333; color: white; padding: 12px 15px; font-weight: bold; font-size: 16px; }
-        .row { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #eee; align-items: center; }
-        .row:last-child { border-bottom: none; }
-        .name { color: #333; }
-        .ext { color: #555; font-size: 0.9em; }
+        /* ⚠️ 完全保留您原本的 CSS，確保樣式一模一樣 */
+        :root { --yj: #e91e63; --yj-bg: #fff0f3; --lk: #2e7d32; --lk-bg: #f1f8f1; --fac: #fbc02d; --fac-bg: #fff9e6; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
+        .main-title { text-align: center; color: #333; font-weight: bold; margin-bottom: 5px; }
+        .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
+        .company-card { background: white; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; margin-bottom: 20px; }
+        .comp-header { padding: 15px; color: white; text-align: center; font-weight: bold; font-size: 1.25em; border-radius: 12px 12px 0 0; }
+        .bg-yj { background-color: var(--yj); }
+        .bg-lk { background-color: var(--lk); }
+        .bg-fac { background-color: var(--fac); color: #333; }
+        .dept-group { border-bottom: 1px solid #eee; }
+        .dept-title { padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; border-left: 4px solid transparent; }
+        .staff-list { display: none; padding: 0; }
+        .expanded .staff-list { display: block; }
+        .staff-item { display: flex; justify-content: space-between; padding: 10px 25px; border-bottom: 1px dotted #eee; position: relative; cursor: pointer; min-height: 24px;}
+        .staff-item:hover { background-color: rgba(0,0,0,0.05); color: #d32f2f; font-weight: bold; }
+        .ext-num { font-family: "Consolas", monospace; color: #555; }
+        .photo-pop { display: none; position: absolute; left: 105%; top: 50%; transform: translateY(-50%); width: 320px; background: white; border: 2px solid #ccc; box-shadow: 10px 10px 30px rgba(0,0,0,0.3); z-index: 9999; padding: 12px; border-radius: 12px; pointer-events: none; }
+        .photo-pop img { width: 300px; height: 300px; object-fit: cover; border-radius: 8px; }
+        .staff-item:hover .photo-pop { display: block; }
     </style>
 </head>
 <body>
 
+<h1 class="main-title">企業通訊錄系統 (自動更新版)</h1>
 <div class="container" id="app">資料載入中...</div>
 
 <script>
-    // 請將這裡改為您的 Google CSV 發布連結
+    // 【請填入您的 CSV 發布連結】
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
 
     Papa.parse(CSV_URL, {
-        download: true,
-        header: false, // 強制關閉 Header，避免因為標題欄導致的資料錯位
-        skipEmptyLines: true,
+        download: true, header: true, skipEmptyLines: true,
         complete: function(results) {
             const data = results.data;
             const app = document.getElementById('app');
-            app.innerHTML = ''; 
-
-            const groups = {};
-
-            // 嚴格依照列順序讀取：0=部門, 1=姓名, 2=分機
-            data.forEach((row, index) => {
-                // 如果您的第一列是標題，請保留這行；若無標題，請刪除這行
-                if (index === 0) return; 
-
-                const dept = row[0] || '未分類';
-                const name = row[1] || '';
-                const ext = row[2] || '';
-
-                if (!groups[dept]) groups[dept] = [];
-                groups[dept].push({ name, ext });
+            app.innerHTML = '';
+            
+            // 這裡將資料整理成 [公司][部門] -> [人員列表] 的結構
+            const structuredData = {};
+            data.forEach(row => {
+                const comp = row['公司'] || '未分類';
+                const dept = row['部門'] || '未分類';
+                if (!structuredData[comp]) structuredData[comp] = {};
+                if (!structuredData[comp][dept]) structuredData[comp][dept] = [];
+                structuredData[comp][dept].push(row);
             });
 
             // 渲染畫面
-            for (const dept in groups) {
+            for (const comp in structuredData) {
                 const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `<div class="dept-header">${dept}</div>`;
+                // 簡易判斷顏色 (依名稱設定 Class)
+                let cardClass = 'yj-card'; let bgColor = 'bg-yj';
+                if(comp.includes('力科光電')) { cardClass = 'lk-card'; bgColor = 'bg-lk'; }
+                if(comp.includes('力科工廠')) { cardClass = 'fac-card'; bgColor = 'bg-fac'; }
                 
-                groups[dept].forEach(item => {
-                    const row = document.createElement('div');
-                    row.className = 'row';
-                    row.innerHTML = `<span class="name">${item.name}</span><span class="ext">${item.ext}</span>`;
-                    card.appendChild(row);
-                });
+                card.className = `company-card ${cardClass}`;
+                card.innerHTML = `<div class="comp-header ${bgColor}">${comp}</div>`;
+                
+                for (const dept in structuredData[comp]) {
+                    const group = document.createElement('div');
+                    group.className = 'dept-group';
+                    group.innerHTML = `<div class="dept-title" onclick="toggleDept(this)">${dept} <span>[+]</span></div>
+                                       <div class="staff-list"></div>`;
+                    
+                    const list = group.querySelector('.staff-list');
+                    structuredData[comp][dept].forEach(person => {
+                        const item = document.createElement('div');
+                        item.className = 'staff-item';
+                        // 若有圖片路徑則加上彈窗，沒有則單純顯示文字
+                        const photoHtml = person['照片路徑'] ? `<div class="photo-pop"><img src="${person['照片路徑']}"></div>` : '';
+                        item.innerHTML = `<span>${person['姓名']}</span><span class="ext-num">${person['分機']}</span>${photoHtml}`;
+                        list.appendChild(item);
+                    });
+                    card.appendChild(group);
+                }
                 app.appendChild(card);
             }
         }
     });
+
+    function toggleDept(el) {
+        const group = el.parentElement;
+        group.classList.toggle('expanded');
+        el.querySelector('span').innerText = group.classList.contains('expanded') ? '[-]' : '[+]';
+    }
 </script>
 </body>
 </html>
