@@ -101,13 +101,13 @@
             });
     });
 
-    // 3. 徹底拋棄傳統 CSV 的引號判斷，改用最乾淨、絕對不會卡死崩潰的暴力防呆拆解法
+    // 3. 暴力防呆解析器 (徹底移除引號致命傷，拔掉垃圾除錯文字)
     function parseCSVForce(text) {
         const lines = text.split(/\r\n|\n/);
         const result = [];
         if (lines.length === 0 || !lines[0].trim()) return result;
 
-        // 讀取第一列作為標題列，移除所有引號與怪字元
+        // 標題列
         const rawHeaders = lines[0].split(',').map(h => h.replace(/"/g, '').trim().replace(/^\uFEFF/, ''));
         const headerMapping = { company: 0, dept: 1, name: 2, ext: 3, memo: 4 };
 
@@ -120,7 +120,7 @@
             else if (h.includes('備註')) headerMapping.memo = index;
         });
 
-        // 逐行暴力拆解，把多餘的引號全部強制清空，確保絕對不斷線、不卡死
+        // 暴力解析
         for (let i = 1; i < lines.length; i++) {
             if (!lines[i].trim()) continue;
             
@@ -132,7 +132,7 @@
             const extVal = cols[headerMapping.ext] || '';
             const memoVal = cols[headerMapping.memo] || '';
 
-            if (!compVal && !deptVal && !nameVal) continue; // 濾掉底部的空白列
+            if (!compVal && !deptVal && !nameVal) continue;
 
             result.push({
                 company: compVal,
@@ -145,17 +145,15 @@
         return result;
     }
 
-    // 4. 動態安全建構畫面 (保留您要的所有排版與效果)
+    // 4. 動態安全建構畫面 (絕對沒有除錯文字垃圾)
     function renderAddressBook(data) {
         const container = document.getElementById('address-book-container');
         container.innerHTML = ''; 
 
         targetCompanies.forEach(comp => {
-            // 模糊搜尋大公司名稱
             const compRows = data.filter(row => row.company === comp.key || row.company.includes(comp.key));
             if (compRows.length === 0) return;
 
-            // 依照試算表的順序進行部門群組
             const deptMap = new Map();
             compRows.forEach(row => {
                 const deptName = row.dept || '其他';
@@ -199,10 +197,11 @@
                     item.className = 'staff-item';
                     const displayName = memo ? `${name} (${memo})` : name;
                     
-                    // 大頭照對應完整部門名稱 (只過濾掉斜線)
+                    // 大頭照檔名路徑 (保留最正確姓名_部門.png)
                     const safeDeptTitle = deptTitle.replace(/[\/]/g, '').trim();
                     const imgUrl = `images/${name}_${safeDeptTitle}.png`;
 
+                    // 【彻底拔掉垃圾測試文字】 只呈現姓名與分機
                     item.innerHTML = `
                         <span>${displayName}</span>
                         <span class="ext-num">${ext}</span>
@@ -223,7 +222,6 @@
         });
     }
 
-    // 保證一用就開的展開函式
     function toggleDept(el) {
         const group = el.parentElement;
         group.classList.toggle('expanded');
