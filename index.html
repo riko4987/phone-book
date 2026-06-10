@@ -2,78 +2,300 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>企業全體組織通訊錄</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <title>企業全體組織通訊錄 - 雲端即時連動版</title>
     <style>
-        :root { --yj: #e91e63; --lk: #2e7d32; --fac: #fbc02d; }
+        :root { 
+            --yj: #e91e63; --yj-bg: #fff0f3; 
+            --lk: #2e7d32; --lk-bg: #f1f8f1; 
+            --fac: #fbc02d; --fac-bg: #fff9e6; 
+        }
+        
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
-        .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
-        .company-card { background: white; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; margin-bottom: 20px; }
-        .comp-header { padding: 15px; color: white; text-align: center; font-weight: bold; font-size: 1.25em; border-radius: 12px 12px 0 0; }
-        .bg-yj { background-color: var(--yj); } .bg-lk { background-color: var(--lk); } .bg-fac { background-color: var(--fac); color: #333; }
+        .main-title { text-align: center; color: #333; font-weight: bold; margin-bottom: 5px; }
+        .update-info { text-align: center; color: #007bff; font-size: 0.9em; margin-bottom: 25px; font-weight: bold; }
+        
+        /* 頂部搜尋工具列 */
+        .search-container { text-align: center; margin-bottom: 25px; }
+        .search-container input { padding: 10px 20px; width: 380px; font-size: 16px; border: 2px solid #ccc; border-radius: 25px; outline: none; transition: 0.3s; }
+        .search-container input:focus { border-color: #007bff; box-shadow: 0 0 8px rgba(0,123,255,0.2); }
+
+        .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
+        
+        /* 三大公司卡片排版樣式 */
+        .company-card { background: white; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; margin-bottom: 20px; overflow: visible; display: none; }
+        .comp-header { padding: 15px; color: white; text-align: center; font-weight: bold; font-size: 1.25em; border-radius: 12px 12px 0 0; letter-spacing: 1px; }
+        
+        .company-card.yj-card { border-top: 5px solid var(--yj); }
+        .company-card.yj-card .comp-header { background-color: var(--yj); }
+        .company-card.lk-card { border-top: 5px solid var(--lk); }
+        .company-card.lk-card .comp-header { background-color: var(--lk); }
+        .company-card.fac-card { border-top: 5px solid var(--fac); }
+        .company-card.fac-card .comp-header { background-color: var(--fac); color: #333; }
+
         .dept-group { border-bottom: 1px solid #eee; }
-        .dept-title { padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; border-left: 4px solid #ccc; }
-        .staff-list { display: none; padding: 0; }
+        .company-card.yj-card .dept-group:hover { background-color: var(--yj-bg); }
+        .company-card.lk-card .dept-group:hover { background-color: var(--lk-bg); }
+        .company-card.fac-card .dept-group:hover { background-color: var(--fac-bg); }
+
+        .dept-title { padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; border-left: 4px solid transparent; -webkit-user-select: none; user-select: none; }
+        .company-card.yj-card .dept-title { border-left-color: var(--yj); color: #c2185b; }
+        .company-card.lk-card .dept-title { border-left-color: var(--lk); color: #1b5e20; }
+        .company-card.fac-card .dept-title { border-left-color: var(--fac); color: #b78103; }
+
+        .staff-list { display: none; padding: 0; background: #fff; }
         .expanded .staff-list { display: block; }
-        .staff-item { display: flex; justify-content: space-between; padding: 10px 25px; border-bottom: 1px dotted #eee; cursor: pointer; position: relative; }
+
+        .staff-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 25px; border-bottom: 1px dotted #eee; position: relative; cursor: pointer; min-height: 42px; box-sizing: border-box; }
         .staff-item:hover { background-color: rgba(0,0,0,0.05); color: #d32f2f; font-weight: bold; }
-        .ext-num { font-family: "Consolas", monospace; color: #555; }
-        .photo-pop { display: none; position: absolute; left: 105%; top: 50%; transform: translateY(-50%); width: 320px; background: white; border: 2px solid #ccc; box-shadow: 10px 10px 30px rgba(0,0,0,0.3); z-index: 9999; pointer-events: none; }
-        .photo-pop img { width: 300px; height: 300px; object-fit: cover; }
+        .staff-item:last-child { border-bottom: none; }
+        
+        .staff-info { display: flex; flex-direction: column; }
+        .staff-name { font-size: 14px; }
+        .staff-mobile { font-size: 11px; color: #7f8c8d; font-weight: normal; margin-top: 2px; font-family: "Consolas", monospace; }
+        .ext-num { font-family: "Consolas", monospace; color: #333; font-weight: bold; background: #e2e8f0; padding: 2px 8px; border-radius: 4px; }
+
+        /* 大頭照浮動彈窗 */
+        .photo-pop {
+            display: none; position: absolute; left: 105%; top: 50%; transform: translateY(-50%);
+            width: 240px; height: 240px; background: white; border: 3px solid #ccc; box-shadow: 10px 10px 30px rgba(0,0,0,0.3); 
+            z-index: 9999; padding: 5px; border-radius: 12px; pointer-events: none; box-sizing: border-box;
+        }
+        .photo-pop img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
         .staff-item:hover .photo-pop { display: block; }
+
+        /* ✅ 最右側力科工廠大頭照一律向左彈出修正，防超出螢幕 */
+        .fac-card .photo-pop { left: auto; right: 105%; box-shadow: -10px 10px 30px rgba(0,0,0,0.3); }
+
+        .yj-card .photo-pop { border-color: var(--yj); }
+        .lk-card .photo-pop { border-color: var(--lk); }
+        .fac-card .photo-pop { border-color: var(--fac); }
+        
+        #loading { text-align: center; font-size: 1.2em; color: #666; margin-top: 50px; }
     </style>
 </head>
 <body>
-    <div class="container" id="app">載入資料中...</div>
 
-    <script>
-        // 【重要】請將下方網址替換成您 Google 試算表發布的 CSV 網址
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSI52Sao1nYZJFPijvpRlUY-H6L0Hu5x1oWyfAZi0vIVmvLGZ7NIOfMoOWlAYQ-vcs7l56RrxjR2CU8/pub?gid=373464397&single=true&output=csv';
+<h1 class="main-title">企業通訊錄系統</h1>
+<div class="update-info" id="statusMsg">🔄 正在同步讀取雲端最新試算表...</div>
 
-        Papa.parse(CSV_URL, {
-            download: true, header: true, skipEmptyLines: true,
-            complete: function(results) {
-                const app = document.getElementById('app');
-                app.innerHTML = '';
-                const tree = {};
+<div class="search-container">
+    <input type="text" id="searchInput" oninput="filterDirectory()" placeholder="輸入姓名、分機、部門關鍵字搜尋...">
+</div>
 
-                results.data.forEach(row => {
-                    const c = row['公司'] || '未分類';
-                    const d = row['部門'] || '其他';
-                    if (!tree[c]) tree[c] = {};
-                    if (!tree[c][d]) tree[c][d] = [];
-                    tree[c][d].push(row);
+<div id="loading">正在載入雲端最新分機資料，請稍後...</div>
+
+<div class="container" id="directoryContainer">
+    <div class="company-card yj-card" id="card-yj">
+        <div class="comp-header">永鉅電機 (簡碼 88)</div>
+        <div id="dept-box-yj"></div>
+    </div>
+
+    <div class="company-card lk-card" id="card-lk">
+        <div class="comp-header">力科光電 (簡碼 66)</div>
+        <div id="dept-box-lk"></div>
+    </div>
+
+    <div class="company-card fac-card" id="card-fac">
+        <div class="comp-header">力科工廠 (簡碼 33)</div>
+        <div id="dept-box-fac"></div>
+    </div>
+</div>
+
+<script>
+    // 主管級行動電話對照表 (當讀取到對應人名，會自動塞入資料中)
+    const managerMobiles = {
+        "李信賢": "0912-092017 (課長)", "黃喬微": "0921-296071 (課長)", "林蕙君": "0921-281508 (課長)",
+        "黃俊榮": "0926-332932 (經理)", "李苡寧": "0987-455980 (課長)", "陳詩惠": "0958-555376 (課長)",
+        "劉育麟": "0988-767659 (副課長)", "陳沈宏": "0932-399651 (經理)", "徐俊國": "0934-198206 (課長)",
+        "王治喬": "0926-236648 (副課長)", "張令璜": "0921-117532 (業務專員)", "江金育": "0931-106322 (副課長)",
+        "康芳源": "0916-442701 (課長)", "徐暐晴": "0921-117531 / 私0909-131-893 (副理)", "林恒德": "0935-272412 (課長)",
+        "黃日揚": "0939-101043 (課長)", "李倩慧": "0937-264336 (副理)", "林美君": "0926-170726 (課長)",
+        "陳宏澤": "0932-277173 (副總)", "黃怡勳": "0910-266696 (課長)", "吳承輝": "0937-615541 (課長)",
+        "許惠如": "0922-054806 (組長)", "楊汶崎": "0952-652949 (課長)", "關芬": "0930-197070 (組長)",
+        "駱建璋": "(副課長)", "李育慶": "0918-004372 (經理)", "陳逢為": "0910-605527 (課長)",
+        "王昭豐": "0917-174082 (課長)", "林國謙": "0988-730816 (副理)", "賴和生": "0975-498103 (副理)",
+        "江衍璋": "0922-142295 (課長)", "蔡英杰": "0952-289198 (經理)", "王雅芳": "0975-706805 (組長)",
+        "黃顗珍": "0921-995421 (經理)", "陳新仁": "(組長)", "劉博淵": "0930-060555 (課長)",
+        "江文瑄": "0912-500891 (組長)", "黃麟雄": "0922-788684 (副理)", "蔡孜和": "0913-241226 (副課長)",
+        "吳曉菁": "0953-296889 (課長)", "陳錦秋": "0918-166722 (副課長)", "黃仕棋": "0958-933407 (副課長)",
+        "明貴中": "0989-410130 (副理)", "張東昇": "0932-128846 (副課長)", "林有麒": "(經理 / 計價代碼: A01)",
+        "劉永安": "(課長 / 計價代碼: A02)", "張淑靜": "0955-051312 (副理)", "曾富楷": "0953-039290 (組長)",
+        "賴正發": "0921-815797 (副理)", "李魁波": "0961-012062 (副課長 / 計價代碼: A03)"
+    };
+
+    // 你的 Google 試算表發布的 CSV 網址
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQOvr1IVzPwzu8I-iVFuP_h1aWhW-CUGImjH4x1oX8chDZh_8_lkDWDDSrDx3B7hb1YDvlOB7S-Srt6/pub?gid=0&single=true&output=csv";
+
+    function toggleDept(el) {
+        const group = el.parentElement;
+        group.classList.toggle('expanded');
+        el.querySelector('span').innerText = group.classList.contains('expanded') ? '[-]' : '[+]';
+    }
+
+    // 讀取並解析雲端 CSV
+    async function fetchCloudData() {
+        try {
+            const response = await fetch(csvUrl);
+            const csvText = await response.text();
+            const lines = csvText.split(/\r?\n/);
+            
+            const structuredData = { yj: {}, lk: {}, fac: {} };
+            let currentDept = { yj: "", lk: "", fac: "" };
+
+            // 從第 7 行開始掃描
+            for (let i = 6; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                const cols = lines[i].split(',');
+                if (cols.length < 15) continue;
+
+                // 橫向拆分三家公司的原始欄位
+                let yjDeptRaw = cols[2] ? cols[2].trim() : "";
+                let yjNameRaw = cols[0] ? cols[0].trim() : "";
+                let yjExtRaw  = cols[1] ? cols[1].trim() : "";
+
+                let lkDeptRaw = cols[7] ? cols[7].trim() : "";
+                let lkNameRaw = cols[5] ? cols[5].trim() : "";
+                let lkExtRaw  = cols[6] ? cols[6].trim() : "";
+
+                let facDeptRaw = cols[12] ? cols[12].trim() : "";
+                let facNameRaw = cols[10] ? cols[10].trim() : "";
+                let facExtRaw  = cols[11] ? cols[11].trim() : "";
+
+                processRow(structuredData.yj, currentDept, 'yj', yjDeptRaw, yjNameRaw, yjExtRaw);
+                processRow(structuredData.lk, currentDept, 'lk', lkDeptRaw, lkNameRaw, lkExtRaw);
+                processRow(structuredData.fac, currentDept, 'fac', facDeptRaw, facNameRaw, facExtRaw);
+            }
+
+            renderToDOM(structuredData);
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('statusMsg').innerText = "✅ 雲端連動成功！資料已比照最新試算表呈現";
+
+        } catch (error) {
+            console.error(error);
+            document.getElementById('loading').innerText = "❌ 無法連接雲端試算表，請確認發布設定。";
+        }
+    }
+
+    // 資料行防呆與「頓號拆分大腦」
+    function processRow(companyBucket, currentDeptObj, compKey, deptRaw, nameRaw, extRaw) {
+        if (deptRaw && !extRaw && isNaN(deptRaw)) {
+            currentDeptObj[compKey] = deptRaw;
+            if (!companyBucket[deptRaw]) {
+                companyBucket[deptRaw] = [];
+            }
+        }
+
+        if (nameRaw && extRaw && currentDeptObj[compKey]) {
+            // 💡 關鍵修復：遇到「翁新誌、顏瑞良」共用分機時，自動用頓號切開，各自分配同一台分機號碼！
+            const nameList = nameRaw.split('、');
+            nameList.forEach(singleName => {
+                const trimmedName = singleName.trim();
+                if (trimmedName) {
+                    companyBucket[currentDeptObj[compKey]].push({
+                        name: trimmedName,
+                        ext: extRaw.trim()
+                    });
+                }
+            });
+        }
+    }
+
+    // DOM 畫面渲染
+    function renderToDOM(data) {
+        const compKeys = { yj: 'card-yj', lk: 'card-lk', fac: 'card-fac' };
+
+        for (let comp in data) {
+            const card = document.getElementById(compKeys[comp]);
+            const box = document.getElementById(`dept-box-${comp}`);
+            box.innerHTML = ""; 
+
+            let hasData = false;
+
+            for (let deptName in data[comp]) {
+                if (data[comp][deptName].length === 0) continue;
+                hasData = true;
+
+                const deptGroup = document.createElement('div');
+                deptGroup.className = 'dept-group';
+
+                let staffHTML = '';
+                data[comp][deptName].forEach(staff => {
+                    // 清洗名字與部門字眼以吻合大頭照 images/姓名_部門.png 格式
+                    const cleanName = staff.name.split(' ')[0].split('(')[0].trim();
+                    const cleanDept = deptName.split(' ')[0].replace(/[/]/g, '').trim();
+
+                    const mobile = managerMobiles[cleanName] || "";
+
+                    // 自動屏蔽公共設施、只為真實員工附加照片懸停視窗
+                    let photoPopHTML = '';
+                    const isFacility = ["會議室", "研磨區", "包包區", "包裝區", "品保檢驗", "空缺分機", "自動化產線", "包射區"].some(k => staff.name.includes(k));
+                    if (staff.name && !isFacility) {
+                        photoPopHTML = `
+                            <div class="photo-pop">
+                                <img src="images/${cleanName}_${cleanDept}.png" onerror="this.src='images/${cleanName}.png'; this.onerror=function(){this.parentElement.style.display='none';};">
+                            </div>`;
+                    }
+
+                    staffHTML += `
+                        <div class="staff-item" data-search="${staff.name.toLowerCase()} ${staff.ext} ${deptName.toLowerCase()}">
+                            <div class="staff-info">
+                                <span class="staff-name">${staff.name}</span>
+                                ${mobile ? `<span class="staff-mobile">${mobile}</span>` : ''}
+                            </div>
+                            <span class="ext-num">${staff.ext}</span>
+                            ${photoPopHTML}
+                        </div>
+                    `;
                 });
 
-                for (const comp in tree) {
-                    const card = document.createElement('div');
-                    card.className = 'company-card';
-                    // 根據公司名稱自動套用顏色
-                    let colorClass = 'bg-yj';
-                    if (comp.includes('力科')) colorClass = 'bg-lk';
-                    if (comp.includes('總務')) colorClass = 'bg-fac';
-                    
-                    card.innerHTML = `<div class="comp-header ${colorClass}">${comp}</div>`;
-                    
-                    for (const dept in tree[comp]) {
-                        const group = document.createElement('div');
-                        group.className = 'dept-group';
-                        group.innerHTML = `<div class="dept-title" onclick="this.parentElement.classList.toggle('expanded')">${dept} <span>[+]</span></div>
-                                           <div class="staff-list"></div>`;
-                        const list = group.querySelector('.staff-list');
-                        tree[comp][dept].forEach(p => {
-                            const item = document.createElement('div');
-                            item.className = 'staff-item';
-                            const photo = p['圖片檔名'] ? `<div class="photo-pop"><img src="images/${p['圖片檔名']}"></div>` : '';
-                            item.innerHTML = `<span>${p['姓名']}</span><span class="ext-num">${p['分機'] || ''}</span>${photo}`;
-                            list.appendChild(item);
-                        });
-                        card.appendChild(group);
-                    }
-                    app.appendChild(card);
+                deptGroup.innerHTML = `
+                    <div class="dept-title" onclick="toggleDept(this)">
+                        ${deptName} <span>[+]</span>
+                    </div>
+                    <div class="staff-list">${staffHTML}</div>
+                `;
+                box.appendChild(deptGroup);
+            }
+
+            if (hasData) card.style.display = 'block';
+        }
+    }
+
+    // 即時篩選搜尋
+    function filterDirectory() {
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        const deptGroups = document.querySelectorAll('.dept-group');
+
+        deptGroups.forEach(group => {
+            const items = group.querySelectorAll('.staff-item');
+            let hasMatch = false;
+
+            items.forEach(item => {
+                const searchStr = item.getAttribute('data-search');
+                if (searchStr.includes(query)) {
+                    item.style.display = 'flex';
+                    hasMatch = true;
+                } else {
+                    item.style.display = 'none';
                 }
+            });
+
+            const span = group.querySelector('.dept-title span');
+            if (hasMatch) {
+                group.style.display = 'block';
+                if (query.length > 0) {
+                    group.classList.add('expanded');
+                    span.innerText = '[-]';
+                }
+            } else {
+                group.style.display = 'none';
             }
         });
-    </script>
+    }
+
+    window.onload = fetchCloudData;
+</script>
+
 </body>
 </html>
